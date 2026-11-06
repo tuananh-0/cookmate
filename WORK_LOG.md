@@ -29,3 +29,31 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Test request không có token thành công: route trả về `401`.
 - Đã xóa dữ liệu test sau khi kiểm tra.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
+
+### Bắt đầu Recipe API
+
+- Đã đồng bộ `develop` sau khi PR `feature/auth-middleware` được merge.
+- Tạo branch `feature/recipe-api` từ `develop` mới nhất.
+- Bắt đầu model Recipe, Favorite và các API CRUD theo checklist.
+
+### Recipe CRUD — chờ Pull Request review
+
+- Tạo model `Recipe` với ingredients, instructions, category, thời gian và servings.
+- Thêm public API list/detail tại `/api/v1/recipes`.
+- Thêm tìm kiếm theo text và lọc theo category.
+- Thêm create/update/delete cho admin với JWT và role middleware.
+- Test tạo recipe, tìm kiếm và xem chi tiết thành công.
+- Đã xóa user admin và recipe test sau khi kiểm tra.
+- Favorite chưa làm; sẽ tách thành task tiếp theo.
+
+### Sửa lỗi validation đăng ký
+
+- Phát hiện request password ngắn hơn 6 ký tự làm server crash do lỗi validation chưa được phản hồi.
+- Thêm kiểm tra password trong controller để trả về `400 Bad Request`.
+- Cần test lại với password ngắn và password hợp lệ trước khi tạo PR Recipe API.
+
+### Xác nhận test Postman
+
+- Đã test các API hiện có bằng Postman.
+- Authentication, protected route và Recipe API đều hoạt động đúng.
+- Recipe API đã sẵn sàng để tạo Pull Request vào `develop`.

@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import authRoutes from './routes/authRoutes.js';
+import recipeRoutes from './routes/recipeRoutes.js';
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.get('/api/v1/health', (_req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/recipes', recipeRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Route not found' });
