@@ -57,3 +57,20 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Đã test các API hiện có bằng Postman.
 - Authentication, protected route và Recipe API đều hoạt động đúng.
 - Recipe API đã sẵn sàng để tạo Pull Request vào `develop`.
+
+### Recipe API hoàn thành và bắt đầu Favorites
+
+- PR Recipe API đã được merge vào `develop`.
+- Cập nhật checklist: Recipe CRUD, search/filter, role protection và Postman test thành `[x]`.
+- Đồng bộ `develop` mới nhất.
+- Tạo branch `feature/favorites`.
+- Bắt đầu model Favorite và các API lưu/bỏ lưu công thức.
+
+### Favorite API — chờ Pull Request review
+
+- Tạo model `Favorite` với unique index theo cặp user/recipe.
+- Thêm `GET /api/v1/favorites` để lấy danh sách yêu thích của user hiện tại.
+- Thêm `POST /api/v1/favorites/:recipeId` để lưu công thức.
+- Thêm `DELETE /api/v1/favorites/:recipeId` để bỏ lưu công thức.
+- Test thêm, xem danh sách, bỏ yêu thích và duplicate request bằng API.
+- Duplicate favorite trả về `409`; dữ liệu test đã được xóa.
