@@ -27,7 +27,7 @@
 - [x] Thêm tìm kiếm và lọc
 - [x] Kiểm tra quyền sửa/xóa
 - [~] Tạo model Favorite và làm API favorite
-- [ ] Tạo 8–12 công thức mẫu
+- [~] Tạo 8–12 công thức mẫu
 
 ## Ngày 4 — Meal plan, pantry và shopping list
 
