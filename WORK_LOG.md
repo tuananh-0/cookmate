@@ -74,3 +74,11 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thêm `DELETE /api/v1/favorites/:recipeId` để bỏ lưu công thức.
 - Test thêm, xem danh sách, bỏ yêu thích và duplicate request bằng API.
 - Duplicate favorite trả về `409`; dữ liệu test đã được xóa.
+
+### Recipe seed data — đang kiểm thử
+
+- Thêm 8 công thức mẫu thuộc nhiều category.
+- Thêm lệnh `npm run seed:recipes`.
+- Seed dùng upsert theo title nên có thể chạy lại mà không tạo bản ghi trùng.
+- Đã chạy seed thành công hai lần với MongoDB local; mỗi lần báo `Seeded 8 recipes`.
+- Kiểm tra khả năng chạy lặp mà không phát sinh lỗi duplicate.
