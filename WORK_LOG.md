@@ -65,3 +65,12 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Đồng bộ `develop` mới nhất.
 - Tạo branch `feature/favorites`.
 - Bắt đầu model Favorite và các API lưu/bỏ lưu công thức.
+
+### Favorite API — chờ Pull Request review
+
+- Tạo model `Favorite` với unique index theo cặp user/recipe.
+- Thêm `GET /api/v1/favorites` để lấy danh sách yêu thích của user hiện tại.
+- Thêm `POST /api/v1/favorites/:recipeId` để lưu công thức.
+- Thêm `DELETE /api/v1/favorites/:recipeId` để bỏ lưu công thức.
+- Test thêm, xem danh sách, bỏ yêu thích và duplicate request bằng API.
+- Duplicate favorite trả về `409`; dữ liệu test đã được xóa.
