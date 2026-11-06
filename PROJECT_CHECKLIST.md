@@ -78,3 +78,14 @@
 - Admin: thêm/sửa/xóa công thức; user chỉ xem và lưu yêu thích.
 - Không bắt buộc: pantry, trừ nguyên liệu theo số lượng, đánh giá/bình luận, upload ảnh và thông báo.
 
+## Nhật ký làm việc
+
+### 2026-11-06 — Khởi tạo quy trình Git và bộ khung dự án
+
+- Tạo repository GitHub public `tuananh-0/cookmate`.
+- Khởi tạo bộ khung React/Vite trong `client/` và Express trong `server/`.
+- Thêm API health check tại `/api/v1/health`.
+- Kết nối backend với MongoDB local `cookmate` và kiểm tra thành công.
+- Thiết lập quy trình branch: `main` ổn định, `develop` tích hợp, `feature/*` cho từng task.
+- Đã build frontend thành công và push các commit nền tảng lên repository.
+
