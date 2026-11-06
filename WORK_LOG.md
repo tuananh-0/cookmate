@@ -51,3 +51,9 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Phát hiện request password ngắn hơn 6 ký tự làm server crash do lỗi validation chưa được phản hồi.
 - Thêm kiểm tra password trong controller để trả về `400 Bad Request`.
 - Cần test lại với password ngắn và password hợp lệ trước khi tạo PR Recipe API.
+
+### Xác nhận test Postman
+
+- Đã test các API hiện có bằng Postman.
+- Authentication, protected route và Recipe API đều hoạt động đúng.
+- Recipe API đã sẵn sàng để tạo Pull Request vào `develop`.
