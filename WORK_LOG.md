@@ -29,3 +29,9 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Test request không có token thành công: route trả về `401`.
 - Đã xóa dữ liệu test sau khi kiểm tra.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
+
+### Bắt đầu Recipe API
+
+- Đã đồng bộ `develop` sau khi PR `feature/auth-middleware` được merge.
+- Tạo branch `feature/recipe-api` từ `develop` mới nhất.
+- Bắt đầu model Recipe, Favorite và các API CRUD theo checklist.

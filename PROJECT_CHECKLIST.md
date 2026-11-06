@@ -22,8 +22,8 @@
 
 ## Ngày 3 — Recipe API
 
-- [ ] Tạo model Recipe và Favorite
-- [ ] Làm API list/detail/create/update/delete recipe
+- [~] Tạo model Recipe và Favorite
+- [~] Làm API list/detail/create/update/delete recipe
 - [ ] Thêm tìm kiếm và lọc
 - [ ] Kiểm tra quyền sửa/xóa
 - [ ] Làm API favorite
