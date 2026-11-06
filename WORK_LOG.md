@@ -35,3 +35,13 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Đã đồng bộ `develop` sau khi PR `feature/auth-middleware` được merge.
 - Tạo branch `feature/recipe-api` từ `develop` mới nhất.
 - Bắt đầu model Recipe, Favorite và các API CRUD theo checklist.
+
+### Recipe CRUD — chờ Pull Request review
+
+- Tạo model `Recipe` với ingredients, instructions, category, thời gian và servings.
+- Thêm public API list/detail tại `/api/v1/recipes`.
+- Thêm tìm kiếm theo text và lọc theo category.
+- Thêm create/update/delete cho admin với JWT và role middleware.
+- Test tạo recipe, tìm kiếm và xem chi tiết thành công.
+- Đã xóa user admin và recipe test sau khi kiểm tra.
+- Favorite chưa làm; sẽ tách thành task tiếp theo.
