@@ -9,7 +9,6 @@ CookMate là nền tảng web giúp người dùng chia sẻ công thức nấu 
 - Tạo, chỉnh sửa và xóa công thức
 - Lưu công thức yêu thích
 - Lập thực đơn theo ngày hoặc tuần
-- Quản lý nguyên liệu trong nhà
 - Tạo danh sách mua sắm
 
 ## Công nghệ dự kiến
@@ -38,6 +37,8 @@ cd ../client
 npm install
 npm run dev
 ```
+
+Backend health check: `http://localhost:5000/api/v1/health`
 
 Tạo file `.env` dựa trên `.env.example` trước khi chạy backend.
 
