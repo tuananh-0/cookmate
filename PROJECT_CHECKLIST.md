@@ -14,8 +14,7 @@
 - [ ] Khởi tạo Express và kết nối MongoDB
 - [ ] Cấu hình CORS, JSON parser và error handler
 - [ ] Tạo health check API
-- [x] Tạo model User
-- [x] Làm register, login và JWT
+- [~] Tạo model User, register, login và JWT
 - [ ] Thêm protected routes
 - [ ] Kiểm tra role user/admin
 - [ ] Test authentication bằng Postman
@@ -79,22 +78,13 @@
 - Admin: thêm/sửa/xóa công thức; user chỉ xem và lưu yêu thích.
 - Không bắt buộc: pantry, trừ nguyên liệu theo số lượng, đánh giá/bình luận, upload ảnh và thông báo.
 
-## Nhật ký làm việc
+## Cách theo dõi
 
-### 2026-11-06 — Khởi tạo quy trình Git và bộ khung dự án
+- `[ ]` Chưa bắt đầu.
+- `[~]` Đang làm.
+- `[x]` Hoàn thành: phải có code, test chạy được, commit và Pull Request đã gửi để review.
+- Mỗi task dùng một branch riêng, tạo từ `develop` đã cập nhật.
+- Không push trực tiếp vào `main` hoặc `develop`.
 
-- Tạo repository GitHub public `tuananh-0/cookmate`.
-- Khởi tạo bộ khung React/Vite trong `client/` và Express trong `server/`.
-- Thêm API health check tại `/api/v1/health`.
-- Kết nối backend với MongoDB local `cookmate` và kiểm tra thành công.
-- Thiết lập quy trình branch: `main` ổn định, `develop` tích hợp, `feature/*` cho từng task.
-- Đã build frontend thành công và push các commit nền tảng lên repository.
-
-### 2026-11-06 — Authentication trên feature/user-auth
-
-- Tạo model `User` với role `user/admin` và mã hóa password bằng bcrypt.
-- Thêm API `POST /api/v1/auth/register` và `POST /api/v1/auth/login`.
-- Thêm JWT token cho các phiên đăng nhập.
-- Kiểm tra đăng ký thực tế với MongoDB local; đã xóa dữ liệu test sau khi kiểm tra.
-- Còn lại: middleware bảo vệ route và kiểm tra role.
+Chi tiết các phiên làm việc nằm trong [WORK_LOG.md](./WORK_LOG.md).
 
