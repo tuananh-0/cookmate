@@ -45,3 +45,9 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Test tạo recipe, tìm kiếm và xem chi tiết thành công.
 - Đã xóa user admin và recipe test sau khi kiểm tra.
 - Favorite chưa làm; sẽ tách thành task tiếp theo.
+
+### Sửa lỗi validation đăng ký
+
+- Phát hiện request password ngắn hơn 6 ký tự làm server crash do lỗi validation chưa được phản hồi.
+- Thêm kiểm tra password trong controller để trả về `400 Bad Request`.
+- Cần test lại với password ngắn và password hợp lệ trước khi tạo PR Recipe API.
