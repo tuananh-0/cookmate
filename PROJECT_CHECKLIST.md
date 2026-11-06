@@ -16,17 +16,17 @@
 - [ ] Tạo health check API
 - [x] Tạo model User
 - [x] Làm register, login và JWT
-- [~] Thêm protected routes và kiểm tra role
-- [ ] Kiểm tra role user/admin
-- [ ] Test authentication bằng Postman
+- [x] Thêm protected routes và kiểm tra role
+- [x] Kiểm tra role user/admin
+- [x] Test authentication bằng Postman
 
 ## Ngày 3 — Recipe API
 
-- [~] Tạo model Recipe và Favorite
-- [~] Làm API list/detail/create/update/delete recipe
-- [ ] Thêm tìm kiếm và lọc
-- [ ] Kiểm tra quyền sửa/xóa
-- [ ] Làm API favorite
+- [x] Tạo model Recipe
+- [x] Làm API list/detail/create/update/delete recipe
+- [x] Thêm tìm kiếm và lọc
+- [x] Kiểm tra quyền sửa/xóa
+- [~] Tạo model Favorite và làm API favorite
 - [ ] Tạo 8–12 công thức mẫu
 
 ## Ngày 4 — Meal plan, pantry và shopping list
