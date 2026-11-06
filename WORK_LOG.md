@@ -82,3 +82,13 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Seed dùng upsert theo title nên có thể chạy lại mà không tạo bản ghi trùng.
 - Đã chạy seed thành công hai lần với MongoDB local; mỗi lần báo `Seeded 8 recipes`.
 - Kiểm tra khả năng chạy lặp mà không phát sinh lỗi duplicate.
+
+### Meal Plan API — đang kiểm thử
+
+- Tạo model `MealPlan` theo user, ngày và buổi ăn.
+- Thêm API list/create/update/delete meal plan.
+- Thêm populate recipe và lọc theo khoảng ngày.
+- Ngăn trùng cùng user, ngày và meal type.
+- Test tạo meal plan, lọc theo ngày và duplicate slot thành công.
+- Duplicate slot trả về `409`; dữ liệu test đã được xóa.
+- Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
