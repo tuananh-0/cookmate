@@ -31,8 +31,8 @@
 
 ## Ngày 4 — Meal plan, pantry và shopping list
 
-- [ ] Tạo model MealPlan
-- [ ] Làm thực đơn theo ngày hoặc tuần
+- [~] Tạo model MealPlan
+- [~] Làm thực đơn theo ngày hoặc tuần
 - [ ] Tạo shopping list đơn giản từ meal plan
 - [ ] Gộp nguyên liệu trùng nhau nếu còn thời gian
 - [ ] Pantry là chức năng bonus, chỉ làm sau khi hoàn thành MVP
