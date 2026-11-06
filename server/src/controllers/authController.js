@@ -35,3 +35,7 @@ export async function login(req, res) {
 
   return res.json({ token: createToken(user._id), user: userResponse(user) });
 }
+
+export function getCurrentUser(req, res) {
+  return res.json({ user: userResponse(req.user) });
+}

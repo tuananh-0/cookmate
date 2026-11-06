@@ -16,7 +16,7 @@
 - [ ] Tạo health check API
 - [x] Tạo model User
 - [x] Làm register, login và JWT
-- [ ] Thêm protected routes
+- [~] Thêm protected routes và kiểm tra role
 - [ ] Kiểm tra role user/admin
 - [ ] Test authentication bằng Postman
 
