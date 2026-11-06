@@ -91,4 +91,14 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Ngăn trùng cùng user, ngày và meal type.
 - Test tạo meal plan, lọc theo ngày và duplicate slot thành công.
 - Duplicate slot trả về `409`; dữ liệu test đã được xóa.
+
+### Shopping List API — đang kiểm thử
+
+- Tạo shopping list từ ingredients của các recipe trong meal plan.
+- Gộp nguyên liệu trùng theo tên, cộng chuỗi quantity.
+- Thêm API xem, generate, cập nhật checked và xóa shopping item.
+- Test generate từ meal plan, lấy danh sách và cập nhật `checked` thành công.
+- Test với 2 meal plan tạo ra 3 shopping items sau khi gộp nguyên liệu.
+- Đã xóa user, meal plan và shopping items test.
+- Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
