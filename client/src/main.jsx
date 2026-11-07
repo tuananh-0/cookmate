@@ -1,6 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import './styles.css';
 
 function Layout({ children }) {
@@ -13,8 +16,30 @@ function HomePage() {
 
 function RecipesPage() { return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><p className="muted">Your recipe collection will appear here.</p></main>; }
 
-function AuthPage({ register = false }) { return <main className="page-container auth-page"><p className="eyebrow">COOKMATE ACCOUNT</p><h1>{register ? 'Create your account' : 'Welcome back'}</h1><form className="auth-form">{register && <label>Name<input type="text" placeholder="Your name" /></label>}<label>Email<input type="email" placeholder="you@example.com" /></label><label>Password<input type="password" placeholder="At least 6 characters" /></label><button className="primary-button" type="submit">{register ? 'Create account' : 'Log in'}</button></form></main>; }
+function AuthPage({ register = false }) {
+  const navigate = useNavigate();
+  const { authenticate } = useAuth();
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await authenticate(register ? 'register' : 'login', form);
+      navigate('/recipes');
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to complete request');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return <main className="page-container auth-page"><p className="eyebrow">COOKMATE ACCOUNT</p><h1>{register ? 'Create your account' : 'Welcome back'}</h1><form className="auth-form" onSubmit={handleSubmit}>{register && <label>Name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>}<label>Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label><label>Password<input required minLength="6" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="At least 6 characters" /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button" disabled={loading} type="submit">{loading ? 'Please wait...' : register ? 'Create account' : 'Log in'}</button></form></main>;
+}
 
 function App() { return <Layout><Routes><Route path="/" element={<HomePage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /></Routes></Layout>; }
 
-createRoot(document.getElementById('root')).render(<StrictMode><BrowserRouter><App /></BrowserRouter></StrictMode>);
+createRoot(document.getElementById('root')).render(<StrictMode><BrowserRouter><AuthProvider><App /></AuthProvider></BrowserRouter></StrictMode>);

@@ -27,5 +27,7 @@ h1 { margin: 12px 0 20px; max-width: 650px; font-size: clamp(3rem, 7vw, 5.6rem);
 .auth-form label { display: grid; gap: 7px; color: #536158; font-size: 0.9rem; font-weight: 700; }
 .auth-form input { border: 1px solid #d8ded5; border-radius: 10px; padding: 13px; font: inherit; background: white; }
 .auth-form .primary-button { justify-content: center; font: inherit; }
+.auth-form .primary-button:disabled { cursor: wait; opacity: 0.65; }
+.form-error { margin: 0; color: #b6473d; font-size: 0.9rem; }
 .footer { width: min(1120px, calc(100% - 40px)); margin: auto; padding: 24px 0; border-top: 1px solid #e7ebe4; color: #819087; font-size: 0.82rem; }
 @media (max-width: 720px) { .navbar { width: calc(100% - 28px); } .nav-links { gap: 10px; } .nav-links a:not(.nav-cta) { display: none; } .page-container { width: calc(100% - 28px); } .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 45px; } .hero-card { min-height: auto; } }
