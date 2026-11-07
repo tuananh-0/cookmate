@@ -118,6 +118,16 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Project owner đã test thành công đăng ký, đăng nhập, localStorage và trường hợp lỗi.
 - Đủ điều kiện commit và push; chờ Pull Request review.
 
+### Frontend Meal Planner — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Favorite frontend được merge.
+- Tạo branch `feature/frontend-meal-planner`.
+- Thêm route `/meal-planner`.
+- Kết nối danh sách, thêm và xóa meal plan.
+- Thêm trạng thái chưa đăng nhập, loading, empty và error.
+- Project owner đã xác nhận Frontend Meal Planner test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
 ### Frontend recipe list — đang chờ tự test
 
 - Đồng bộ `develop` sau khi frontend authentication được merge.
