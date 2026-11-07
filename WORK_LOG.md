@@ -170,6 +170,21 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Hiển thị trạng thái saved và lỗi khi chưa đăng nhập.
 - Chưa commit/push; chờ project owner tự test.
 
+### Cải thiện label Recipe Management — đang chờ tự test
+
+- Thêm label rõ ràng cho `Prep time (minutes)`, `Cook time (minutes)` và `Servings`.
+- Thêm placeholder minh họa giá trị cần nhập.
+- Project owner đã xác nhận Recipe Management labels test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend Recipe Management — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Shopping List frontend được merge.
+- Tạo branch `feature/frontend-recipe-management`.
+- Thêm trang `/admin/recipes` cho admin create/edit/delete recipe.
+- Thêm form nhập ingredients theo dòng `name|quantity` và instructions theo dòng.
+- Chưa commit/push; chờ project owner tự test.
+
 ### Frontend Shopping List — đang chờ tự test
 
 - Đồng bộ `develop` sau khi Meal Planner frontend được merge.
