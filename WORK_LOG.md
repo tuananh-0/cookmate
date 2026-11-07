@@ -101,4 +101,12 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Test với 2 meal plan tạo ra 3 shopping items sau khi gộp nguyên liệu.
 - Đã xóa user, meal plan và shopping items test.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
+
+### Frontend shell — đang kiểm thử
+
+- Đồng bộ `develop` sau khi Shopping List PR được merge.
+- Tạo branch `feature/frontend-shell`.
+- Thêm React Router, Axios API client và layout responsive.
+- Thêm các màn hình khung Home, Recipes, Login và Register.
+- Đang kiểm tra production build và điều hướng giữa các màn hình.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.

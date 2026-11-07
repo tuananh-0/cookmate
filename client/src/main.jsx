@@ -1,22 +1,20 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import './styles.css';
 
-function App() {
-  return (
-    <main className="app-shell">
-      <p className="eyebrow">YOUR PERSONAL KITCHEN COMPANION</p>
-      <h1>CookMate</h1>
-      <p className="intro">
-        Discover recipes, plan your meals, and prepare your shopping list in one place.
-      </p>
-      <button type="button">Explore recipes</button>
-    </main>
-  );
+function Layout({ children }) {
+  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
 }
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+function HomePage() {
+  return <main className="hero page-container"><div className="hero-copy"><p className="eyebrow">YOUR PERSONAL KITCHEN COMPANION</p><h1>Good food starts with a good plan.</h1><p className="intro">Discover recipes, plan your meals, and prepare your shopping list in one calm, simple place.</p><Link className="primary-button" to="/recipes">Explore recipes <span>→</span></Link></div><div className="hero-card"><span className="hero-emoji">🥕</span><p>What are you cooking today?</p><div className="mini-recipe"><span>🍜</span><strong>Comfort bowl</strong><small>Ready in 25 min</small></div><div className="mini-recipe"><span>🥗</span><strong>Garden salad</strong><small>Fresh & simple</small></div></div></main>;
+}
+
+function RecipesPage() { return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><p className="muted">Your recipe collection will appear here.</p></main>; }
+
+function AuthPage({ register = false }) { return <main className="page-container auth-page"><p className="eyebrow">COOKMATE ACCOUNT</p><h1>{register ? 'Create your account' : 'Welcome back'}</h1><form className="auth-form">{register && <label>Name<input type="text" placeholder="Your name" /></label>}<label>Email<input type="email" placeholder="you@example.com" /></label><label>Password<input type="password" placeholder="At least 6 characters" /></label><button className="primary-button" type="submit">{register ? 'Create account' : 'Log in'}</button></form></main>; }
+
+function App() { return <Layout><Routes><Route path="/" element={<HomePage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /></Routes></Layout>; }
+
+createRoot(document.getElementById('root')).render(<StrictMode><BrowserRouter><App /></BrowserRouter></StrictMode>);
