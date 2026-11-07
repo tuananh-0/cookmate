@@ -8,7 +8,8 @@ import api from './lib/api.js';
 import './styles.css';
 
 function Layout({ children }) {
-  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
+  const { user, logout } = useAuth();
+  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link>{user ? <><span className="user-greeting">Hi, {user.name}</span><button className="logout-button" type="button" onClick={logout}>Log out</button></> : <><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></>}</nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
 }
 
 function HomePage() {
@@ -24,11 +25,13 @@ function RecipesPage() {
 }
 
 function RecipeDetailPage() {
-  const { id } = useParams(); const [recipe, setRecipe] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
+  const { id } = useParams(); const { token } = useAuth(); const [recipe, setRecipe] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [isFavorite, setIsFavorite] = useState(false); const [favoriteLoading, setFavoriteLoading] = useState(false); const [favoriteError, setFavoriteError] = useState('');
   useEffect(() => { api.get(`/recipes/${id}`).then(({ data }) => setRecipe(data.recipe)).catch(() => setError('Recipe not found.')).finally(() => setLoading(false)); }, [id]);
+  useEffect(() => { if (!token) return; api.get('/favorites', { headers: { Authorization: `Bearer ${token}` } }).then(({ data }) => setIsFavorite(data.favorites.some((favorite) => favorite.recipe?._id === id || favorite.recipe === id))).catch(() => {}); }, [id, token]);
+  async function toggleFavorite() { if (!token) { setFavoriteError('Please log in to save favorites.'); return; } setFavoriteLoading(true); setFavoriteError(''); try { if (isFavorite) { await api.delete(`/favorites/${id}`, { headers: { Authorization: `Bearer ${token}` } }); setIsFavorite(false); } else { await api.post(`/favorites/${id}`, {}, { headers: { Authorization: `Bearer ${token}` } }); setIsFavorite(true); } } catch (requestError) { setFavoriteError(requestError.response?.data?.message || 'Unable to update favorite.'); } finally { setFavoriteLoading(false); } }
   if (loading) return <main className="page-container content-page"><p className="muted">Loading recipe...</p></main>;
   if (error) return <main className="page-container content-page"><p className="form-error">{error}</p><Link to="/recipes">← Back to recipes</Link></main>;
-  return <main className="page-container detail-page"><Link className="back-link" to="/recipes">← Back to recipes</Link><p className="eyebrow">{recipe.category}</p><h1>{recipe.title}</h1><p className="detail-description">{recipe.description}</p><div className="detail-meta"><span>{recipe.prepTime + recipe.cookTime} min total</span><span>{recipe.servings} servings</span></div><section className="detail-section"><h2>Ingredients</h2><ul>{recipe.ingredients.map((ingredient) => <li key={`${ingredient.name}-${ingredient.quantity}`}><span>{ingredient.name}</span><strong>{ingredient.quantity}</strong></li>)}</ul></section><section className="detail-section"><h2>Instructions</h2><ol>{recipe.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol></section></main>;
+  return <main className="page-container detail-page"><Link className="back-link" to="/recipes">← Back to recipes</Link><p className="eyebrow">{recipe.category}</p><h1>{recipe.title}</h1><p className="detail-description">{recipe.description}</p><div className="detail-meta"><span>{recipe.prepTime + recipe.cookTime} min total</span><span>{recipe.servings} servings</span></div><button className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} type="button" onClick={toggleFavorite} disabled={favoriteLoading}>{favoriteLoading ? 'Updating...' : isFavorite ? '♥ Saved to favorites' : '♡ Save to favorites'}</button>{favoriteError && <p className="form-error">{favoriteError}</p>}<section className="detail-section"><h2>Ingredients</h2><ul>{recipe.ingredients.map((ingredient) => <li key={`${ingredient.name}-${ingredient.quantity}`}><span>{ingredient.name}</span><strong>{ingredient.quantity}</strong></li>)}</ul></section><section className="detail-section"><h2>Instructions</h2><ol>{recipe.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol></section></main>;
 }
 
 function AuthPage({ register = false }) {

@@ -150,3 +150,20 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thêm link từ recipe card sang trang chi tiết và link quay lại.
 - Project owner đã xác nhận Recipe Detail test thành công.
 - Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend Favorites — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Recipe Detail PR được merge.
+- Tạo branch `feature/frontend-favorites`.
+- Thêm Favorite button trên Recipe Detail.
+- Kết nối GET/POST/DELETE với Favorite API bằng JWT.
+- Hiển thị trạng thái saved và lỗi khi chưa đăng nhập.
+- Chưa commit/push; chờ project owner tự test.
+
+### Phân biệt giao diện đăng nhập — đang chờ tự test
+
+- Cập nhật navbar theo auth state từ `AuthContext`.
+- Chưa đăng nhập: hiển thị `Log in` và `Get started`.
+- Đã đăng nhập: hiển thị tên user và `Log out`.
+- Project owner đã xác nhận Auth UI state test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.

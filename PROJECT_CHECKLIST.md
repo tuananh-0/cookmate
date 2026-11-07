@@ -45,7 +45,7 @@
 - [~] Làm search/filter
 - [~] Làm recipe detail
 - [ ] Làm form create/edit/delete recipe
-- [ ] Làm favorite button
+- [~] Làm favorite button
 
 ## Ngày 6 — Hoàn thiện và kiểm thử
 
