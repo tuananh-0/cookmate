@@ -170,6 +170,15 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Hiển thị trạng thái saved và lỗi khi chưa đăng nhập.
 - Chưa commit/push; chờ project owner tự test.
 
+### Frontend Shopping List — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Meal Planner frontend được merge.
+- Tạo branch `feature/frontend-shopping-list`.
+- Thêm route `/shopping-list`.
+- Kết nối generate, list, checked toggle và delete với Shopping List API.
+- Project owner đã xác nhận Frontend Shopping List test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
 ### Phân biệt giao diện đăng nhập — đang chờ tự test
 
 - Cập nhật navbar theo auth state từ `AuthContext`.
