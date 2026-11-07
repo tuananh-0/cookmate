@@ -43,7 +43,7 @@
 - [~] Làm Login/Register, lưu JWT và logout
 - [~] Làm Home, recipe list và recipe card
 - [~] Làm search/filter
-- [ ] Làm recipe detail
+- [~] Làm recipe detail
 - [ ] Làm form create/edit/delete recipe
 - [ ] Làm favorite button
 

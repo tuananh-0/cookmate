@@ -141,3 +141,12 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Autocomplete test cũng đã được xác nhận thành công.
 - Đủ điều kiện commit và push; chờ Pull Request review.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
+### Frontend Recipe Detail — đang chờ tự test
+
+- Đồng bộ `develop` sau khi frontend recipe list được merge.
+- Tạo branch `feature/frontend-recipe-detail`.
+- Thêm route `/recipes/:id` và kết nối `GET /api/v1/recipes/:id`.
+- Hiển thị ingredients, instructions, thời gian và servings.
+- Thêm link từ recipe card sang trang chi tiết và link quay lại.
+- Project owner đã xác nhận Recipe Detail test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
