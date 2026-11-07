@@ -117,4 +117,27 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thêm loading state và hiển thị lỗi từ API.
 - Project owner đã test thành công đăng ký, đăng nhập, localStorage và trường hợp lỗi.
 - Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend recipe list — đang chờ tự test
+
+- Đồng bộ `develop` sau khi frontend authentication được merge.
+- Tạo branch `feature/frontend-recipes`.
+- Kết nối trang Recipes với `GET /api/v1/recipes`.
+- Thêm recipe cards, tìm kiếm và lọc category.
+- Chưa commit/push; chờ test thủ công từ project owner.
+
+### Điều chỉnh password và recipe search — đã tự test
+
+- Tăng password registration lên tối thiểu 8 ký tự, bắt buộc chữ hoa, chữ thường và số.
+- Cập nhật frontend validation và thông báo hướng dẫn password.
+- Đổi recipe search sang regex không phân biệt hoa thường trên title, description, category và ingredient.
+- Thêm gợi ý recipe khi người dùng nhập từ khóa từ ký tự đầu tiên.
+- Project owner đã xác nhận password policy và frontend recipe list/search test thành công.
+
+### Điều chỉnh autocomplete search
+
+- Giữ danh sách search trên title, description, category và ingredients.
+- Giới hạn autocomplete chỉ theo title để tránh đề xuất `Gà teriyaki` khi `ph` chỉ khớp với từ `phủ` trong description.
+- Autocomplete test cũng đã được xác nhận thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
