@@ -109,4 +109,12 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thêm React Router, Axios API client và layout responsive.
 - Thêm các màn hình khung Home, Recipes, Login và Register.
 - Đang kiểm tra production build và điều hướng giữa các màn hình.
+
+### Frontend authentication — đang chờ tự test
+
+- Tạo `AuthContext` để lưu user và JWT trong localStorage.
+- Kết nối form Login/Register với API backend bằng Axios.
+- Thêm loading state và hiển thị lỗi từ API.
+- Project owner đã test thành công đăng ký, đăng nhập, localStorage và trường hợp lỗi.
+- Đủ điều kiện commit và push; chờ Pull Request review.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
