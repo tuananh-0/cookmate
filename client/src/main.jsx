@@ -1,9 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+import api from './lib/api.js';
 import './styles.css';
 
 function Layout({ children }) {
@@ -14,7 +15,13 @@ function HomePage() {
   return <main className="hero page-container"><div className="hero-copy"><p className="eyebrow">YOUR PERSONAL KITCHEN COMPANION</p><h1>Good food starts with a good plan.</h1><p className="intro">Discover recipes, plan your meals, and prepare your shopping list in one calm, simple place.</p><Link className="primary-button" to="/recipes">Explore recipes <span>→</span></Link></div><div className="hero-card"><span className="hero-emoji">🥕</span><p>What are you cooking today?</p><div className="mini-recipe"><span>🍜</span><strong>Comfort bowl</strong><small>Ready in 25 min</small></div><div className="mini-recipe"><span>🥗</span><strong>Garden salad</strong><small>Fresh & simple</small></div></div></main>;
 }
 
-function RecipesPage() { return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><p className="muted">Your recipe collection will appear here.</p></main>; }
+function RecipesPage() {
+  const [recipes, setRecipes] = useState([]); const [search, setSearch] = useState(''); const [category, setCategory] = useState(''); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
+  useEffect(() => { const timer = setTimeout(async () => { setLoading(true); try { const params = new URLSearchParams(); if (search.trim()) params.set('search', search.trim()); if (category) params.set('category', category); const { data } = await api.get(`/recipes?${params.toString()}`); setRecipes(data.recipes); setError(''); } catch { setError('Unable to load recipes. Please check that the API is running.'); } finally { setLoading(false); } }, 250); return () => clearTimeout(timer); }, [search, category]);
+  const rankedRecipes = [...recipes].sort((a, b) => { const query = search.trim().toLowerCase(); const aStarts = query && a.title.toLowerCase().startsWith(query); const bStarts = query && b.title.toLowerCase().startsWith(query); return Number(bStarts) - Number(aStarts); });
+  const suggestions = search.trim() ? rankedRecipes.filter((recipe) => recipe.title.toLowerCase().includes(search.trim().toLowerCase())).slice(0, 5) : [];
+  return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><div className="recipe-toolbar"><div className="search-box"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search recipes..." aria-label="Search recipes" />{suggestions.length > 0 && !loading && <div className="search-suggestions" role="listbox">{suggestions.map((recipe) => <button type="button" key={recipe._id} onClick={() => setSearch(recipe.title)}>{recipe.title}<small>{recipe.category}</small></button>)}</div>}</div><select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category"><option value="">All categories</option><option value="Vietnamese">Vietnamese</option><option value="Italian">Italian</option><option value="Healthy">Healthy</option><option value="Japanese">Japanese</option><option value="Breakfast">Breakfast</option><option value="Vegetarian">Vegetarian</option></select></div>{loading && <p className="muted">Loading recipes...</p>}{error && <p className="form-error">{error}</p>}{!loading && !error && rankedRecipes.length === 0 && <p className="muted">No recipes found.</p>}<div className="recipe-grid">{rankedRecipes.map((recipe) => <article className="recipe-card" key={recipe._id}><div className="recipe-image">🍲</div><div className="recipe-card-body"><span className="recipe-category">{recipe.category}</span><h2>{recipe.title}</h2><p>{recipe.description}</p><small>{recipe.prepTime + recipe.cookTime} min · {recipe.servings} servings</small></div></article>)}</div></main>;
+}
 
 function AuthPage({ register = false }) {
   const navigate = useNavigate();
@@ -37,7 +44,7 @@ function AuthPage({ register = false }) {
     }
   }
 
-  return <main className="page-container auth-page"><p className="eyebrow">COOKMATE ACCOUNT</p><h1>{register ? 'Create your account' : 'Welcome back'}</h1><form className="auth-form" onSubmit={handleSubmit}>{register && <label>Name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>}<label>Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label><label>Password<input required minLength="6" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="At least 6 characters" /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button" disabled={loading} type="submit">{loading ? 'Please wait...' : register ? 'Create account' : 'Log in'}</button></form></main>;
+  return <main className="page-container auth-page"><p className="eyebrow">COOKMATE ACCOUNT</p><h1>{register ? 'Create your account' : 'Welcome back'}</h1><form className="auth-form" onSubmit={handleSubmit}>{register && <label>Name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>}<label>Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label><label>Password<input required minLength={register ? 8 : 1} pattern={register ? '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$' : undefined} title={register ? 'Use at least 8 characters with uppercase, lowercase, and a number' : undefined} type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={register ? '8+ chars, upper/lowercase and number' : 'Your password'} /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button" disabled={loading} type="submit">{loading ? 'Please wait...' : register ? 'Create account' : 'Log in'}</button></form></main>;
 }
 
 function App() { return <Layout><Routes><Route path="/" element={<HomePage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /></Routes></Layout>; }

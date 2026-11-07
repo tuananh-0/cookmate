@@ -4,7 +4,15 @@ export async function listRecipes(req, res) {
   const { search, category } = req.query;
   const filter = {};
   if (category) filter.category = category;
-  if (search) filter.$text = { $search: search };
+  if (search) {
+    const searchPattern = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    filter.$or = [
+      { title: searchPattern },
+      { description: searchPattern },
+      { category: searchPattern },
+      { 'ingredients.name': searchPattern },
+    ];
+  }
 
   const recipes = await Recipe.find(filter).sort({ createdAt: -1 });
   return res.json({ count: recipes.length, recipes });
