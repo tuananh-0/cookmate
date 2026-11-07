@@ -49,7 +49,7 @@
 
 ## Ngày 6 — Hoàn thiện và kiểm thử
 
-- [ ] Làm meal planner page
+- [~] Làm meal planner page
 - [ ] Làm shopping list page
 - [ ] Kết nối toàn bộ API với frontend
 - [ ] Xử lý loading, error, empty state và token hết hạn
