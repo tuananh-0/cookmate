@@ -52,7 +52,7 @@
 - [~] Làm meal planner page
 - [~] Làm shopping list page
 - [ ] Kết nối toàn bộ API với frontend
-- [ ] Xử lý loading, error, empty state và token hết hạn
+- [~] Xử lý loading, error, empty state và token hết hạn
 - [ ] Kiểm tra phân quyền và các nghiệp vụ chính
 - [ ] Chạy build, lint và sửa console error
 

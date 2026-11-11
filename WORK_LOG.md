@@ -170,6 +170,16 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Hiển thị trạng thái saved và lỗi khi chưa đăng nhập.
 - Chưa commit/push; chờ project owner tự test.
 
+### Frontend session/error handling — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Recipe Management PR được merge.
+- Tạo branch `feature/frontend-session-errors`.
+- Axios tự động gắn JWT vào request.
+- API `401` tự xóa session và chuyển về `/login?expired=1`.
+- Hiển thị thông báo session hết hạn trên trang Login.
+- Project owner đã xác nhận Frontend session error test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
 ### Cải thiện label Recipe Management — đang chờ tự test
 
 - Thêm label rõ ràng cho `Prep time (minutes)`, `Cook time (minutes)` và `Servings`.
