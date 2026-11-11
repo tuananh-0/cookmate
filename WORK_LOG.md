@@ -180,6 +180,16 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Project owner đã xác nhận Frontend session error test thành công.
 - Đủ điều kiện commit và push; chờ Pull Request review.
 
+### Frontend API integration review — đang chờ tự test
+
+- Đồng bộ `develop` sau khi session/error handling được merge.
+- Tạo branch `feature/frontend-business-checks`.
+- Dùng Axios interceptor tập trung để gắn JWT, bỏ header auth lặp ở các page.
+- Cải thiện lỗi tải/cập nhật và reset lỗi cũ trong Meal Planner, Shopping List, Recipe Detail.
+- Làm an toàn việc đọc user JSON lưu trong localStorage.
+- Build frontend thành công; project owner đã xác nhận tự kiểm tra các luồng nghiệp vụ thành công.
+- Đủ điều kiện commit/push; chờ Pull Request review.
+
 ### Cải thiện label Recipe Management — đang chờ tự test
 
 - Thêm label rõ ràng cho `Prep time (minutes)`, `Cook time (minutes)` và `Servings`.
