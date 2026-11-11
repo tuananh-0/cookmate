@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../lib/api.js';
 
 const AuthContext = createContext(null);
@@ -25,6 +25,12 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
   }
+
+  useEffect(() => {
+    const handleSessionExpired = () => { setToken(null); setUser(null); };
+    window.addEventListener('cookmate:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('cookmate:session-expired', handleSessionExpired);
+  }, []);
 
   const value = useMemo(() => ({ token, user, authenticate, logout }), [token, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

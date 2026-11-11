@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Link, Route, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
@@ -71,9 +71,10 @@ function RecipeManagementPage() {
 
 function AuthPage({ register = false }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { authenticate } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
-  const [error, setError] = useState('');
+  const [error, setError] = useState(searchParams.get('expired') ? 'Your session expired. Please log in again.' : '');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event) {
