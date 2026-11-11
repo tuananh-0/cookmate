@@ -6,8 +6,14 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem('cookmate_token'));
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('cookmate_user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      const savedUser = localStorage.getItem('cookmate_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      localStorage.removeItem('cookmate_user');
+      localStorage.removeItem('cookmate_token');
+      return null;
+    }
   });
 
   async function authenticate(endpoint, payload) {
