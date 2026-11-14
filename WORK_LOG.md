@@ -30,6 +30,16 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Đã xóa dữ liệu test sau khi kiểm tra.
 - Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
 
+### Lint và production build — chờ Pull Request review
+
+- Đồng bộ `develop` sau khi frontend business checks được merge.
+- Tạo branch `feature/project-lint-build`.
+- Thêm ESLint flat config và `lint` scripts cho client/server.
+- Sửa effect trong Recipe Detail, Meal Planner, Shopping List và Admin Management để tránh cập nhật state đồng bộ trong effect và tránh update sau unmount.
+- Frontend lint, backend lint và frontend production build đều chạy thành công.
+- Project owner đã xác nhận lint/build và kiểm tra thủ công frontend thành công.
+- Đủ điều kiện commit/push; chờ Pull Request review.
+
 ### Bắt đầu Recipe API
 
 - Đã đồng bộ `develop` sau khi PR `feature/auth-middleware` được merge.
