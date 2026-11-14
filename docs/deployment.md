@@ -28,6 +28,7 @@ The API only starts listening after Mongoose connects, so `MongoDB connected` fo
 ## Before deploying the API
 
 - Set `MONGO_URI` and a new, strong `JWT_SECRET` in the hosting provider's secret/environment settings. Do not reuse local development secrets.
+- Set `CORS_ORIGINS` to the comma-separated list of trusted frontend origins. For the deployed CookMate UI, use `https://cookmate-fe.onrender.com`; include local Vite origins only when needed for local development. Do not add a trailing slash to origins.
 - Replace the local IP access-list entry with the API host's documented outbound IP address or addresses when available.
 - Keep the database user scoped to the application database and rotate credentials if they are exposed.
 
@@ -40,7 +41,7 @@ The repository includes a Render Blueprint at `render.yaml`. It configures a Nod
 1. Make sure the Render Blueprint changes have been merged into the `develop` branch.
 2. In the Render Dashboard, create a **Blueprint** and connect the public `tuananh-0/cookmate` GitHub repository. Select the `develop` branch and the repository's `render.yaml`.
 3. Review the planned service before applying it. The Blueprint uses the Free plan in the Virginia region, matching the service created for CookMate.
-4. When prompted for `MONGO_URI`, enter the current Atlas connection string after rotating any credential that was exposed. Never put it in the repository or a Pull Request. Render generates `JWT_SECRET`; it sets `JWT_EXPIRE=7d` and `NODE_ENV=production`.
+4. When prompted for `MONGO_URI`, enter the current Atlas connection string after rotating any credential that was exposed. Never put it in the repository or a Pull Request. Render generates `JWT_SECRET`; it sets `JWT_EXPIRE=7d` and `NODE_ENV=production`. Set `CORS_ORIGINS` to `https://cookmate-fe.onrender.com` (comma-separated if multiple trusted frontends are needed).
 5. After the first service is created, open its **Connect → Outbound** panel in Render and copy the outbound IP ranges for the service's configured region. Add those CIDR ranges to the Atlas project's **Network Access / IP Access List**. Atlas must allow the Render service's outbound addresses as well as your development machine if you still connect locally. Render's [outbound IP guide](https://render.com/docs/outbound-ip-addresses) explains where to find the current ranges; these are shared ranges and can change, so review them if connectivity later stops.
 6. Apply or redeploy the Blueprint and watch the service's deploy logs. A successful deploy should show `MongoDB connected` and then `CookMate API is listening on port ...`.
 7. Copy the service's public `onrender.com` URL and request `/api/v1/health` and `/api/v1/recipes` in Postman. Both should return HTTP 200. An empty recipes array is valid if the Atlas database has no recipes yet.
@@ -57,6 +58,6 @@ The same `render.yaml` Blueprint also defines a Render Static Site for the React
 2. Review the `cookmate-web` static site. It builds from `client/` with `npm ci && npm run build` and publishes `dist/`.
 3. Confirm the build-time variable `VITE_API_URL` is `https://cookmate-j4o2.onrender.com/api/v1`. This value is included in the public frontend bundle, so it must contain no credentials or other secrets.
 4. Apply the Blueprint and wait for the static site deploy to succeed. Open its `onrender.com` URL, then visit `/`, `/recipes`, and `/login`. Refresh a nested route such as `/recipes` to verify the SPA rewrite returns the React app.
-5. In the browser, confirm recipes load from the production API and the browser console has no network/CORS errors. Render's React Router fallback uses a rewrite to `/index.html`; see [Static Site redirects and rewrites](https://render.com/docs/redirects-rewrites).
+5. In the browser, confirm recipes load from the production API and the browser console has no network/CORS errors. Requests from origins outside `CORS_ORIGINS` should not receive an `Access-Control-Allow-Origin` header. Render's React Router fallback uses a rewrite to `/index.html`; see [Static Site redirects and rewrites](https://render.com/docs/redirects-rewrites).
 
 After frontend testing succeeds, add `cookmate.id.vn` as a custom domain on the static site and configure the DNS records shown by Render in the P.A Việt Nam dashboard. Keep `api.cookmate.id.vn` for the backend if you later add that API custom domain.
