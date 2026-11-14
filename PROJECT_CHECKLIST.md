@@ -62,7 +62,7 @@
 - [ ] Deploy backend
 - [ ] Deploy frontend
 - [ ] Cấu hình CORS và environment variables production
-- [ ] Tạo API documentation public bằng Postman hoặc Swagger
+- [~] Tạo API documentation public bằng Postman hoặc Swagger
 - [ ] Public API base URL và kiểm tra các endpoint trên môi trường production
 - [ ] Hoàn thiện README và link live
 - [ ] Làm PowerPoint 8–10 slide

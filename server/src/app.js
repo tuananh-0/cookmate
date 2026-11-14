@@ -5,11 +5,15 @@ import recipeRoutes from './routes/recipeRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
 import mealPlanRoutes from './routes/mealPlanRoutes.js';
 import shoppingListRoutes from './routes/shoppingListRoutes.js';
+import swaggerUi from 'swagger-ui-express';
+import openapiSpecification from './docs/openapi.js';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 app.get('/api/v1/health', (_req, res) => {
   res.json({ status: 'ok', service: 'cookmate-api' });

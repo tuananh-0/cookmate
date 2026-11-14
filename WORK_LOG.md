@@ -40,6 +40,22 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Project owner đã xác nhận lint/build và kiểm tra thủ công frontend thành công.
 - Đủ điều kiện commit/push; chờ Pull Request review.
 
+### Postman API documentation — đang chờ tự kiểm tra
+
+- Đồng bộ `develop` sau khi lint/build PR được merge.
+- Tạo branch `feature/public-api-docs`.
+- Thêm Postman Collection v2.1 JSON cho health, authentication, recipes, favorites, meal plans và shopping list.
+- Local Mode cảnh báo rằng collection JSON trong workspace không được tự nạp; thêm hướng dẫn import thủ công vào `postman/README.md`.
+- Đã xác nhận collection JSON parse hợp lệ.
+- Chưa commit/push; chờ project owner import và thử các request trong Postman.
+- Theo yêu cầu project owner, bổ sung API annotations theo cấu trúc `@api {METHOD} /route` vào `docs/api.apidoc.js`.
+
+### Swagger API documentation — đang chờ tự kiểm tra
+
+- Theo yêu cầu project owner, thêm OpenAPI 3 spec cho API và Swagger UI tại `/api-docs`.
+- Bao gồm authentication, recipes, favorites, meal plans và shopping list.
+- Chưa commit/push; chờ project owner mở Swagger UI và kiểm tra endpoint hiển thị.
+
 ### Bắt đầu Recipe API
 
 - Đã đồng bộ `develop` sau khi PR `feature/auth-middleware` được merge.

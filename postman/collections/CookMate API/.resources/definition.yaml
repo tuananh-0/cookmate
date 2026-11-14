@@ -1,0 +1,14 @@
+$kind: collection
+description: Public API reference for CookMate. Set the baseUrl variable to the deployed API origin or http://localhost:5000, then authenticate to populate the token variable.
+variables:
+  baseUrl: http://localhost:5000
+  token: ""
+  recipeId: ""
+  mealPlanId: ""
+  shoppingItemId: ""
+auth:
+  - id: 1723bfbd-ea96-4524-9061-cca39fbfa070
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"
