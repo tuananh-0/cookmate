@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed:recipes": "node src/seed/seedRecipes.js"
+    "seed:recipes": "node src/seed/seedRecipes.js",
+    "lint": "eslint src"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -17,6 +18,9 @@
     "mongoose": "^8.9.5"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
     "nodemon": "^3.1.9"
   }
 }
