@@ -10,7 +10,23 @@ import openapiSpecification from './docs/openapi.js';
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:4173')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    // Requests without an Origin header (for example, Postman or health checks)
+    // are not browser cross-origin requests and remain available.
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(null, false);
+  },
+}));
 app.use(express.json());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));

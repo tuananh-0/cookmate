@@ -279,13 +279,25 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - PR #22 đã được merge vào `develop` tại `7c9a226`; đồng bộ local `develop` bằng fast-forward.
 - Backend đã deploy trên Render tại `https://cookmate-j4o2.onrender.com`; cấu hình Atlas IP Access List với outbound IP ranges của Render để kết nối database.
 - Project owner xác nhận production API test thành công; đánh dấu backend `[x]` trong checklist.
-- Task tiếp theo trong checklist: deploy frontend trên Render Static Site, sau đó cấu hình CORS và tên miền production.
+- Task tiếp theo trong checklist: cấu hình CORS và environment variables production.
 
-### Chuẩn bị deploy frontend trên Render — đang chờ tự deploy/test
+### Deploy frontend trên Render — đã merge và production test thành công
 
 - Tạo branch `feature/deploy-frontend` từ `develop` tại `7c9a226`.
 - Thêm Static Site `cookmate-web` vào Render Blueprint: build từ `client/`, chạy `npm ci && npm run build`, publish `dist/`.
 - Đặt `VITE_API_URL` trỏ tới API production và thêm SPA rewrite về `/index.html` cho các route React Router.
 - Kiểm tra nội bộ: `npm.cmd run lint` và `npm.cmd run build` trong `client/` thành công; kiểm tra YAML Blueprint và API URL thành công; `git diff --check` đạt.
 - Project owner xác nhận frontend preview test thành công trên trình duyệt.
-- Đủ điều kiện commit/push branch; chờ PR review/merge trước khi tạo/cập nhật Static Site trên Render.
+- Commit `6ac7ff2` đã push; PR #23 đã merge vào `develop` tại `b379415`; đồng bộ local `develop` bằng fast-forward.
+- Static Site ban đầu `cookmate-1` báo `404` với header `x-render-routing: no-server` dù cấu hình publish đúng; đã tạo Static Site mới `cookmate-fe` để kiểm tra và giữ nguyên service cũ trong lúc xác minh.
+- `cookmate-fe` deploy thành công tại `https://cookmate-fe.onrender.com`; project owner xác nhận production test thành công.
+- Đánh dấu task Deploy frontend `[x]` trong checklist. Deploy này chạy từ `develop` tại commit `b379415` đã merge; không phát sinh commit code mới.
+
+### Cấu hình CORS và environment variables production — đang triển khai
+
+- Tạo branch `feature/production-cors` từ `develop` tại `b379415`; giữ các cập nhật checklist/work log frontend đã xác nhận.
+- Thay CORS mở toàn bộ bằng allowlist `CORS_ORIGINS`; mặc định chỉ cho phép các origin localhost khi phát triển. Request không có Origin (Postman/health check) vẫn hoạt động.
+- Thêm biến `CORS_ORIGINS` vào ví dụ môi trường, Render Blueprint và hướng dẫn deploy; origin production dự kiến là `https://cookmate-fe.onrender.com`.
+- Kiểm tra nội bộ: `npm.cmd run lint` ở `server/`, `npm.cmd run build` ở `client/`, `git diff --check`; kiểm tra HTTP health với Origin được cho phép, Origin ngoài allowlist và request không có Origin. Tất cả đạt.
+- Project owner xác nhận local CORS/frontend test thành công. Checklist production CORS/env vẫn `[~]` đến khi thay đổi được merge và xác minh trên production.
+- Đủ điều kiện commit/push branch; sau merge sẽ cấu hình `CORS_ORIGINS` trên Render backend và kiểm tra production từ trình duyệt.
