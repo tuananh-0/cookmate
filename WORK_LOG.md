@@ -256,7 +256,7 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - `develop` local hiện đã trỏ tới commit merge này. `git fetch` lần này không cập nhật được `FETCH_HEAD` do quyền truy cập, nhưng branch tracking và lịch sử commit xác nhận merge đã có trên `origin/develop`.
 - Task kế tiếp theo checklist: triển khai MongoDB Atlas; cần cấu hình tài khoản/cluster và biến môi trường production trước.
 
-### MongoDB Atlas — đã kết nối, chờ PR merge
+### MongoDB Atlas — đã merge vào develop
 
 - Tạo branch `feature/mongodb-atlas` từ `develop` local ở commit `d0802cc`.
 - Thêm `docs/deployment.md` với hướng dẫn tạo database user, giới hạn IP access, cấu hình `MONGO_URI` riêng tư, chạy API và kiểm tra kết nối.
@@ -264,4 +264,16 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` thành công; `git diff --check` không phát hiện whitespace error. Không chạy được lệnh `npm` trực tiếp trong PowerShell do execution policy, đã dùng `npm.cmd`.
 - Project owner đã cấu hình Atlas trong `server/.env`; xác nhận URI dùng `mongodb+srv://`, API log `MongoDB connected`, và Postman trả `200 OK` cho health cùng recipes.
 - Recipes trả danh sách rỗng (`count: 0`) nhưng endpoint hoạt động bình thường; chưa có dữ liệu công thức trong Atlas.
-- Đủ điều kiện commit và push branch; checklist Atlas vẫn `[~]` cho đến khi hoàn tất các bước deploy còn lại.
+- PR #21 đã được merge vào `develop` tại `4fdcf65`; đồng bộ local `develop` bằng fast-forward và đánh dấu Atlas `[x]`.
+- Task tiếp theo trong checklist: deploy backend; project owner đã chọn Render.
+
+### Chuẩn bị deploy backend trên Render — đang chờ tự deploy/test
+
+- Tạo branch `feature/render-backend` từ `develop` đã đồng bộ tại `4fdcf65`.
+- Thêm Blueprint `render.yaml` cho Node.js service: thư mục `server`, cài dependency bằng `npm ci`, chạy `npm start`, health check `/api/v1/health`, region Singapore và cấu hình secrets qua Render.
+- Cập nhật server để bind vào `0.0.0.0` và dùng `PORT` do hosting cấp.
+- Thêm hướng dẫn triển khai Render vào `docs/deployment.md`; đánh dấu backend `[~]`.
+- Ghi rõ cách lấy outbound IP ranges của Render region Singapore và thêm chúng vào Atlas IP Access List để service có thể kết nối database.
+- Kiểm tra nội bộ: `npm.cmd run lint`, `node --check src/server.js`, kiểm tra cú pháp/cấu hình YAML bằng `js-yaml`, `git diff --check` đều đạt; xác nhận `server/.env` vẫn bị Git ignore.
+- Project owner xác nhận kiểm tra local thành công sau khi server bind `0.0.0.0` và dùng `PORT`; chưa tạo service trong tài khoản Render.
+- Chờ Pull Request review/merge trước khi tạo service Render; khi deploy cần dùng `MONGO_URI` đã xoay mật khẩu và cho phép outbound IP ranges của Render trong Atlas.

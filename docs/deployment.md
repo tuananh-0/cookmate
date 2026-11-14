@@ -32,3 +32,19 @@ The API only starts listening after Mongoose connects, so `MongoDB connected` fo
 - Keep the database user scoped to the application database and rotate credentials if they are exposed.
 
 The actual Atlas cluster and its credentials must be created in the project owner's Atlas account; this repository intentionally contains no live credentials.
+
+## Deploy the backend on Render
+
+The repository includes a Render Blueprint at `render.yaml`. It configures a Node.js web service from `server/`, runs `npm ci` and `npm start`, and checks `GET /api/v1/health`. Render's documented Node web service requirements are to bind to `0.0.0.0` and use the assigned `PORT`; the API server does this.
+
+1. Make sure the Render Blueprint changes have been merged into the `develop` branch.
+2. In the Render Dashboard, create a **Blueprint** and connect the public `tuananh-0/cookmate` GitHub repository. Select the `develop` branch and the repository's `render.yaml`.
+3. Review the planned service before applying it. The Blueprint uses the Free plan in the Singapore region.
+4. When prompted for `MONGO_URI`, enter the current Atlas connection string after rotating any credential that was exposed. Never put it in the repository or a Pull Request. Render generates `JWT_SECRET`; it sets `JWT_EXPIRE=7d` and `NODE_ENV=production`.
+5. After the first service is created, open its **Connect → Outbound** panel in Render and copy the Singapore outbound IP ranges. Add those CIDR ranges to the Atlas project's **Network Access / IP Access List**. Atlas must allow the Render service's outbound addresses as well as your development machine if you still connect locally. Render's [outbound IP guide](https://render.com/docs/outbound-ip-addresses) explains where to find the current ranges; these are shared ranges and can change, so review them if connectivity later stops.
+6. Apply or redeploy the Blueprint and watch the service's deploy logs. A successful deploy should show `MongoDB connected` and then `CookMate API is listening on port ...`.
+7. Copy the service's public `onrender.com` URL and request `/api/v1/health` and `/api/v1/recipes` in Postman. Both should return HTTP 200. An empty recipes array is valid if the Atlas database has no recipes yet.
+
+Render Free services can spin down after 15 minutes without inbound requests, so the first request after inactivity may take about a minute. Render describes Free instances as suitable for hobby/testing rather than production; review [current Free plan limits](https://render.com/docs/free). See Render's [Blueprint reference](https://render.com/docs/blueprint-spec) and [web service port requirements](https://render.com/docs/web-services) for the configuration details.
+
+After the API deploy succeeds, configure its custom domain (for example, `api.cookmate.id.vn`) in Render and add the DNS records shown by Render in the P.A Việt Nam domain dashboard. Keep this separate from the frontend domain setup. Render documents that web services bind to `0.0.0.0` and use `PORT`; see [Render web services](https://render.com/docs/web-services). The Free plan spins services down when idle and can have a cold-start delay, so it is intended for hobby/testing rather than production; see [Free plan limitations](https://render.com/docs/free).
