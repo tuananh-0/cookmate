@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: cookmate-api
+    name: cookmate
     runtime: node
     plan: free
-    region: singapore
+    region: virginia
     branch: develop
     rootDir: server
     buildCommand: npm ci
@@ -18,3 +18,17 @@ services:
         value: 7d
       - key: NODE_ENV
         value: production
+  - type: web
+    name: cookmate-web
+    runtime: static
+    branch: develop
+    rootDir: client
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://cookmate-j4o2.onrender.com/api/v1

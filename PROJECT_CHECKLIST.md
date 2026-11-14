@@ -59,8 +59,8 @@
 ## Ngày 7 — Deploy và thuyết trình
 
 - [x] Deploy MongoDB Atlas
-- [~] Deploy backend
-- [ ] Deploy frontend
+- [x] Deploy backend
+- [~] Deploy frontend
 - [ ] Cấu hình CORS và environment variables production
 - [x] Tạo API documentation public bằng Postman hoặc Swagger
 - [ ] Public API base URL và kiểm tra các endpoint trên môi trường production
