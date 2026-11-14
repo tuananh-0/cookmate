@@ -267,13 +267,25 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - PR #21 đã được merge vào `develop` tại `4fdcf65`; đồng bộ local `develop` bằng fast-forward và đánh dấu Atlas `[x]`.
 - Task tiếp theo trong checklist: deploy backend; project owner đã chọn Render.
 
-### Chuẩn bị deploy backend trên Render — đang chờ tự deploy/test
+### Deploy backend trên Render — đã merge và production test thành công
 
 - Tạo branch `feature/render-backend` từ `develop` đã đồng bộ tại `4fdcf65`.
-- Thêm Blueprint `render.yaml` cho Node.js service: thư mục `server`, cài dependency bằng `npm ci`, chạy `npm start`, health check `/api/v1/health`, region Singapore và cấu hình secrets qua Render.
+- Thêm Blueprint `render.yaml` cho Node.js service: thư mục `server`, cài dependency bằng `npm ci`, chạy `npm start`, health check `/api/v1/health`, region Virginia (khớp service thực tế) và cấu hình secrets qua Render.
 - Cập nhật server để bind vào `0.0.0.0` và dùng `PORT` do hosting cấp.
 - Thêm hướng dẫn triển khai Render vào `docs/deployment.md`; đánh dấu backend `[~]`.
-- Ghi rõ cách lấy outbound IP ranges của Render region Singapore và thêm chúng vào Atlas IP Access List để service có thể kết nối database.
+- Ghi rõ cách lấy outbound IP ranges của Render service region và thêm chúng vào Atlas IP Access List để service có thể kết nối database.
 - Kiểm tra nội bộ: `npm.cmd run lint`, `node --check src/server.js`, kiểm tra cú pháp/cấu hình YAML bằng `js-yaml`, `git diff --check` đều đạt; xác nhận `server/.env` vẫn bị Git ignore.
-- Project owner xác nhận kiểm tra local thành công sau khi server bind `0.0.0.0` và dùng `PORT`; chưa tạo service trong tài khoản Render.
-- Chờ Pull Request review/merge trước khi tạo service Render; khi deploy cần dùng `MONGO_URI` đã xoay mật khẩu và cho phép outbound IP ranges của Render trong Atlas.
+- Project owner xác nhận kiểm tra local thành công sau khi server bind `0.0.0.0` và dùng `PORT`.
+- PR #22 đã được merge vào `develop` tại `7c9a226`; đồng bộ local `develop` bằng fast-forward.
+- Backend đã deploy trên Render tại `https://cookmate-j4o2.onrender.com`; cấu hình Atlas IP Access List với outbound IP ranges của Render để kết nối database.
+- Project owner xác nhận production API test thành công; đánh dấu backend `[x]` trong checklist.
+- Task tiếp theo trong checklist: deploy frontend trên Render Static Site, sau đó cấu hình CORS và tên miền production.
+
+### Chuẩn bị deploy frontend trên Render — đang chờ tự deploy/test
+
+- Tạo branch `feature/deploy-frontend` từ `develop` tại `7c9a226`.
+- Thêm Static Site `cookmate-web` vào Render Blueprint: build từ `client/`, chạy `npm ci && npm run build`, publish `dist/`.
+- Đặt `VITE_API_URL` trỏ tới API production và thêm SPA rewrite về `/index.html` cho các route React Router.
+- Kiểm tra nội bộ: `npm.cmd run lint` và `npm.cmd run build` trong `client/` thành công; kiểm tra YAML Blueprint và API URL thành công; `git diff --check` đạt.
+- Project owner xác nhận frontend preview test thành công trên trình duyệt.
+- Đủ điều kiện commit/push branch; chờ PR review/merge trước khi tạo/cập nhật Static Site trên Render.
