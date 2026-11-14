@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/recipes?search={{search}}&category={{category}}"
+method: GET
+queryParams:
+  - key: search
+    value: "{{search}}"
+    description: Matches title, description, category, and ingredient names.
+  - key: category
+    value: "{{category}}"
+order: 1000

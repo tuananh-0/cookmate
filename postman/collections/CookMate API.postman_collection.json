@@ -1,0 +1,50 @@
+{
+  "info": {
+    "_postman_id": "93bf94e8-3664-49be-8b75-618a1d773bf1",
+    "name": "CookMate API",
+    "description": "Public API reference for CookMate. Set the baseUrl variable to the deployed API origin or http://localhost:5000, then authenticate to populate the token variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "recipeId", "value": "" },
+    { "key": "mealPlanId", "value": "" },
+    { "key": "shoppingItemId", "value": "" }
+  ],
+  "item": [
+    { "name": "Health", "item": [
+      { "name": "Health check", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/health" }, "response": [] }
+    ]},
+    { "name": "Authentication", "item": [
+      { "name": "Register", "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) {", "  const response = pm.response.json();", "  pm.collectionVariables.set('token', response.token);", "}"] } }], "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Cookmate123\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/auth/register", "description": "Password requires at least 8 characters with uppercase, lowercase, and a number." }, "response": [] },
+      { "name": "Login", "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 200) {", "  pm.collectionVariables.set('token', pm.response.json().token);", "}"] } }], "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Cookmate123\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/auth/login" }, "response": [] },
+      { "name": "Current user", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/auth/me" }, "response": [] }
+    ]},
+    { "name": "Recipes", "item": [
+      { "name": "List and search recipes", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/recipes?search={{search}}&category={{category}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "recipes"], "query": [{ "key": "search", "value": "{{search}}", "description": "Matches title, description, category, and ingredient names." }, { "key": "category", "value": "{{category}}" }] } }, "response": [] },
+      { "name": "Recipe detail", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/recipes/{{recipeId}}" }, "response": [] },
+      { "name": "Create recipe (admin)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Example recipe\",\n  \"description\": \"A short description\",\n  \"category\": \"Vietnamese\",\n  \"ingredients\": [{ \"name\": \"Rice noodles\", \"quantity\": \"200g\" }],\n  \"instructions\": [\"Prepare ingredients\", \"Cook and serve\"],\n  \"prepTime\": 10,\n  \"cookTime\": 20,\n  \"servings\": 2\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/recipes" }, "response": [] },
+      { "name": "Update recipe (admin)", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/recipes/{{recipeId}}" }, "response": [] },
+      { "name": "Delete recipe (admin)", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/recipes/{{recipeId}}" }, "response": [] }
+    ]},
+    { "name": "Favorites (authentication required)", "item": [
+      { "name": "List favorites", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/favorites" }, "response": [] },
+      { "name": "Add favorite", "request": { "method": "POST", "url": "{{baseUrl}}/api/v1/favorites/{{recipeId}}" }, "response": [] },
+      { "name": "Remove favorite", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/favorites/{{recipeId}}" }, "response": [] }
+    ]},
+    { "name": "Meal plans (authentication required)", "item": [
+      { "name": "List meal plans", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/v1/meal-plans?dateFrom={{dateFrom}}&dateTo={{dateTo}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "meal-plans"], "query": [{ "key": "dateFrom", "value": "{{dateFrom}}" }, { "key": "dateTo", "value": "{{dateTo}}" }] } }, "response": [] },
+      { "name": "Create meal plan", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"date\": \"2026-11-20\",\n  \"mealType\": \"dinner\",\n  \"recipeId\": \"{{recipeId}}\",\n  \"note\": \"Optional note\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/meal-plans" }, "response": [] },
+      { "name": "Update meal plan", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"mealType\": \"lunch\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/meal-plans/{{mealPlanId}}" }, "response": [] },
+      { "name": "Delete meal plan", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/meal-plans/{{mealPlanId}}" }, "response": [] }
+    ]},
+    { "name": "Shopping list (authentication required)", "item": [
+      { "name": "Get shopping list", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/shopping-list" }, "response": [] },
+      { "name": "Generate from meal plans", "request": { "method": "POST", "url": "{{baseUrl}}/api/v1/shopping-list/generate" }, "response": [] },
+      { "name": "Update checked state", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"checked\": true\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/shopping-list/{{shoppingItemId}}" }, "response": [] },
+      { "name": "Delete shopping item", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/shopping-list/{{shoppingItemId}}" }, "response": [] }
+    ]}
+  ]
+}
