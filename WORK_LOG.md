@@ -247,3 +247,21 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Đã đăng nhập: hiển thị tên user và `Log out`.
 - Project owner đã xác nhận Auth UI state test thành công.
 - Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Public API documentation — đã merge vào develop
+
+- Hoàn thiện tài liệu OpenAPI/Swagger và giao diện Swagger UI tại `/api-docs`; bổ sung collection Postman.
+- Project owner đã xác nhận kiểm tra tài liệu API thành công.
+- PR #20 đã được merge vào `develop` (`d0802cc`); đánh dấu task hoàn thành trong checklist.
+- `develop` local hiện đã trỏ tới commit merge này. `git fetch` lần này không cập nhật được `FETCH_HEAD` do quyền truy cập, nhưng branch tracking và lịch sử commit xác nhận merge đã có trên `origin/develop`.
+- Task kế tiếp theo checklist: triển khai MongoDB Atlas; cần cấu hình tài khoản/cluster và biến môi trường production trước.
+
+### MongoDB Atlas — đã kết nối, chờ PR merge
+
+- Tạo branch `feature/mongodb-atlas` từ `develop` local ở commit `d0802cc`.
+- Thêm `docs/deployment.md` với hướng dẫn tạo database user, giới hạn IP access, cấu hình `MONGO_URI` riêng tư, chạy API và kiểm tra kết nối.
+- Thêm liên kết hướng dẫn Atlas vào README và chuyển checklist Atlas sang `[~]`.
+- Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` thành công; `git diff --check` không phát hiện whitespace error. Không chạy được lệnh `npm` trực tiếp trong PowerShell do execution policy, đã dùng `npm.cmd`.
+- Project owner đã cấu hình Atlas trong `server/.env`; xác nhận URI dùng `mongodb+srv://`, API log `MongoDB connected`, và Postman trả `200 OK` cho health cùng recipes.
+- Recipes trả danh sách rỗng (`count: 0`) nhưng endpoint hoạt động bình thường; chưa có dữ liệu công thức trong Atlas.
+- Đủ điều kiện commit và push branch; checklist Atlas vẫn `[~]` cho đến khi hoàn tất các bước deploy còn lại.
