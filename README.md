@@ -42,6 +42,8 @@ Backend health check: `http://localhost:5000/api/v1/health`
 
 Tạo file `.env` dựa trên `.env.example` trước khi chạy backend.
 
+Hướng dẫn cấu hình MongoDB Atlas: [docs/deployment.md](./docs/deployment.md).
+
 ## Trạng thái
 
 Đồ án đang được phát triển. Xem [PROJECT_CHECKLIST.md](./PROJECT_CHECKLIST.md) để theo dõi tiến độ.
