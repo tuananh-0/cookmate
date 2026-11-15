@@ -1,8 +1,9 @@
 import Recipe from '../models/Recipe.js';
 import { normalizeIngredientName } from '../utils/ingredientUtils.js';
+import { publicRecipeFilter } from '../utils/recipeVisibility.js';
 
 export async function listIngredients(_req, res) {
-  const ingredientNames = await Recipe.distinct('ingredients.name');
+  const ingredientNames = await Recipe.distinct('ingredients.name', publicRecipeFilter);
   const uniqueIngredients = new Map();
   for (const name of ingredientNames) {
     if (typeof name !== 'string' || !name.trim()) continue;
@@ -23,7 +24,7 @@ export async function matchRecipesByIngredients(req, res) {
   }
 
   const availableNames = new Set(ingredients.map(normalizeIngredientName));
-  const recipes = await Recipe.find({});
+  const recipes = await Recipe.find(publicRecipeFilter);
   const matches = recipes.flatMap((recipe) => {
     const recipeIngredients = recipe.ingredients.map((ingredient) => ingredient.toObject());
     const matchedIngredients = recipeIngredients.filter((ingredient) => availableNames.has(normalizeIngredientName(ingredient.name)));
@@ -52,16 +53,16 @@ export async function matchRecipesByIngredients(req, res) {
 
 export async function listRecipes(req, res) {
   const { search, category } = req.query;
-  const filter = {};
+  const filter = { $and: [publicRecipeFilter] };
   if (category) filter.category = category;
   if (search) {
     const searchPattern = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-    filter.$or = [
+    filter.$and.push({ $or: [
       { title: searchPattern },
       { description: searchPattern },
       { category: searchPattern },
       { 'ingredients.name': searchPattern },
-    ];
+    ] });
   }
 
   const recipes = await Recipe.find(filter).sort({ createdAt: -1 });
@@ -69,18 +70,79 @@ export async function listRecipes(req, res) {
 }
 
 export async function getRecipe(req, res) {
-  const recipe = await Recipe.findById(req.params.id).populate('createdBy', 'name');
+  const recipe = await Recipe.findOne({ _id: req.params.id, ...publicRecipeFilter }).populate('createdBy', 'name');
   if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
   return res.json({ recipe });
 }
 
 export async function createRecipe(req, res) {
-  const recipe = await Recipe.create({ ...req.body, createdBy: req.user._id });
+  const recipe = await Recipe.create({ ...req.body, createdBy: req.user._id, status: 'approved', reviewedBy: req.user._id, reviewedAt: new Date() });
   return res.status(201).json({ recipe });
 }
 
+export async function submitRecipe(req, res) {
+  const { ingredients, instructions } = req.body || {};
+  if (!Array.isArray(ingredients) || ingredients.length === 0
+    || ingredients.some((ingredient) => !ingredient || typeof ingredient.name !== 'string'
+      || !ingredient.name.trim() || typeof ingredient.quantity !== 'string' || !ingredient.quantity.trim())) {
+    return res.status(400).json({ message: 'Provide at least one ingredient with a name and quantity' });
+  }
+  if (!Array.isArray(instructions) || instructions.length === 0
+    || instructions.some((instruction) => typeof instruction !== 'string' || !instruction.trim())) {
+    return res.status(400).json({ message: 'Provide at least one non-empty instruction step' });
+  }
+
+  const recipe = await Recipe.create({
+    ...req.body,
+    createdBy: req.user._id,
+    status: 'pending',
+    reviewedBy: null,
+    reviewedAt: null,
+    reviewNote: '',
+  });
+  return res.status(201).json({ recipe });
+}
+
+export async function listMySubmissions(req, res) {
+  const recipes = await Recipe.find({ createdBy: req.user._id, status: { $in: ['pending', 'approved', 'rejected'] } })
+    .select('title category status reviewNote createdAt updatedAt reviewedAt')
+    .sort({ createdAt: -1 });
+  return res.json({ count: recipes.length, recipes });
+}
+
+export async function listReviewQueue(_req, res) {
+  const recipes = await Recipe.find({ status: 'pending' })
+    .populate('createdBy', 'name email')
+    .sort({ createdAt: 1 });
+  return res.json({ count: recipes.length, recipes });
+}
+
+export async function reviewRecipe(req, res) {
+  const { status, reviewNote = '' } = req.body || {};
+  if (!['approved', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Review status must be approved or rejected' });
+  }
+  if (typeof reviewNote !== 'string' || reviewNote.length > 500) {
+    return res.status(400).json({ message: 'Review note must be 500 characters or fewer' });
+  }
+
+  const recipe = await Recipe.findOneAndUpdate(
+    { _id: req.params.id, status: 'pending' },
+    { $set: { status, reviewNote: reviewNote.trim(), reviewedBy: req.user._id, reviewedAt: new Date() } },
+    { new: true, runValidators: true },
+  ).populate('createdBy', 'name email');
+  if (!recipe) return res.status(404).json({ message: 'Pending recipe not found' });
+  return res.json({ recipe });
+}
+
 export async function updateRecipe(req, res) {
-  const recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
+  const recipe = await Recipe.findByIdAndUpdate(req.params.id, {
+    ...req.body,
+    status: 'pending',
+    reviewedBy: null,
+    reviewedAt: null,
+    reviewNote: '',
+  }, {
     new: true,
     runValidators: true,
   });

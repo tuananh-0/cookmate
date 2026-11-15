@@ -17,9 +17,15 @@ const recipeSchema = new mongoose.Schema(
     cookTime: { type: Number, min: 0, default: 0 },
     servings: { type: Number, min: 1, default: 1 },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'approved', index: true },
+    reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    reviewedAt: { type: Date, default: null },
+    reviewNote: { type: String, trim: true, maxlength: 500, default: '' },
   },
   { timestamps: true },
 );
+
+recipeSchema.index({ createdBy: 1, createdAt: -1 });
 
 recipeSchema.index({ title: 'text', description: 'text', category: 'text' });
 

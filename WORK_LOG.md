@@ -428,3 +428,21 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Updated Swagger docs, including request/response shape for recipe matching; corrected a duplicate path entry.
 - Internal lint/build and runtime documentation checks are pending in this session. User manual testing is required before commit/push.
 - Internal verification passed: `npm.cmd run lint` and `npm.cmd run build` in `client/`; `npm.cmd run lint` in `server/`; OpenAPI document loads and includes all three new endpoints; `git diff --check` passed.
+
+## 2026-11-15 — V2.1 merged; V2.2 started
+
+- Confirmed user-reported successful merge of PR #36 into `develop`; fast-forwarded local `develop` to `dd1f2d6`.
+- Marked V2.1 ingredient matching complete in `PROJECT_CHECKLIST.md` after user test, commit, push, and merge.
+- Created `feature/v2-recipe-submissions-moderation` from the updated `develop` for V2.2.
+- Started V2.2: user-submitted recipes must remain private/pending until admin approval; public endpoints expose approved recipes only, while legacy V1 recipes remain public.
+- No commit or push for V2.2 until the user tests the implementation.
+
+### V2.2 — Recipe submissions and admin moderation (in progress)
+
+- Added recipe publication statuses (`pending`, `approved`, `rejected`) and review metadata. Legacy documents without a status remain public so existing V1 data stays visible.
+- Added authenticated recipe submission, owner-only status listing, admin review queue, and approve/reject endpoint with optional feedback.
+- Public recipe list/detail, ingredient suggestions/matching, favorites, and meal-plan reads/writes filter out unpublished recipes. Editing a published recipe as admin sends it back to pending review.
+- Added user submission, status tracking, and admin review pages; updated Swagger and seed behavior.
+- Added clear client/API validation for ingredient lines and non-empty instruction steps.
+- Internal checks passed: client `npm.cmd run lint` and `npm.cmd run build`; server `npm.cmd run lint`; OpenAPI smoke check confirmed all moderation routes and status values; `git diff --check` passed (only line-ending normalization notices).
+- Project owner confirmed the manual V2.2 submission/moderation test passed. Preparing commit and push for a PR into `develop`; checklist remains `[~]` until the PR is merged.

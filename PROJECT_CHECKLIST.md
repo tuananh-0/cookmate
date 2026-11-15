@@ -84,16 +84,16 @@
 
 Thực hiện theo thứ tự đã thống nhất. Mỗi tính năng dùng branch riêng từ `develop`; chỉ chuyển sang `[~]` khi bắt đầu task và `[x]` sau khi code, test, commit và PR đã merge.
 
-### V2.1 — Tìm công thức theo nguyên liệu có sẵn `[~]`
+### V2.1 — Tìm công thức theo nguyên liệu có sẵn `[x]`
 
 - [x] Chốt cách chuẩn hóa và đối chiếu tên nguyên liệu cho MVP: so khớp tên chính xác sau khi chuẩn hóa chữ hoa/thường và khoảng trắng; không tự suy đoán nguyên liệu gần giống.
-- [ ] Làm API tìm công thức theo danh sách nguyên liệu người dùng cung cấp.
-- [ ] Trả về nguyên liệu đã có và nguyên liệu còn thiếu cho từng công thức.
-- [ ] Thêm giao diện nhập/chọn nguyên liệu và hiển thị kết quả phù hợp.
-- [ ] Cho phép thêm nguyên liệu còn thiếu vào shopping list.
-- [ ] Kiểm tra danh sách rỗng, nguyên liệu không khớp, công thức thiếu một phần và quyền truy cập shopping list.
+- [x] Làm API tìm công thức theo danh sách nguyên liệu người dùng cung cấp.
+- [x] Trả về nguyên liệu đã có và nguyên liệu còn thiếu cho từng công thức.
+- [x] Thêm giao diện nhập/chọn nguyên liệu và hiển thị kết quả phù hợp.
+- [x] Cho phép thêm nguyên liệu còn thiếu vào shopping list.
+- [x] Kiểm tra danh sách rỗng, nguyên liệu không khớp, công thức thiếu một phần và quyền truy cập shopping list.
 
-### V2.2 — Người dùng gửi công thức, admin duyệt
+### V2.2 — Người dùng gửi công thức, admin duyệt `[~]`
 
 - [ ] Bổ sung trạng thái công thức `pending`, `approved`, `rejected`.
 - [ ] Đặt công thức seed hiện tại và công thức do admin tạo ở trạng thái `approved`.

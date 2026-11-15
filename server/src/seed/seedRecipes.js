@@ -26,7 +26,7 @@ try {
   for (const recipe of sampleRecipes) {
     await Recipe.updateOne(
       { title: recipe.title },
-      { $set: { ...recipe, createdBy: user._id } },
+      { $set: { ...recipe, createdBy: user._id, status: 'approved' } },
       { upsert: true },
     );
   }

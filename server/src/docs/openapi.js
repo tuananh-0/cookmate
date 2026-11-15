@@ -29,6 +29,8 @@ const options = {
             instructions: { type: 'array', items: { type: 'string' } }, category: { type: 'string' },
             imageUrl: { type: 'string' }, prepTime: { type: 'number', example: 15 },
             cookTime: { type: 'number', example: 30 }, servings: { type: 'number', example: 2 },
+            status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
+            reviewNote: { type: 'string', maxLength: 500 },
           },
         },
         Error: { type: 'object', properties: { message: { type: 'string' } } },
@@ -174,7 +176,7 @@ export default swaggerJsdoc(options);
  *         name: category
  *         schema: { type: string }
  *     responses:
- *       200: { description: Recipe list and count. }
+ *       200: { description: Public recipes that are approved (legacy recipes without a status remain visible), with count. }
  *   post:
  *     summary: Create recipe (admin only)
  *     tags: [Recipes]
@@ -201,20 +203,21 @@ export default swaggerJsdoc(options);
  *       200: { description: Recipe details. }
  *       404: { description: Recipe not found. }
  *   patch:
- *     summary: Update recipe (admin only)
- *     tags: [Recipes]
+ *     summary: Update a recipe; edits return it to pending review
  *     security: [{ bearerAuth: [] }]
+ *     tags: [Recipes]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema: { type: string }
  *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
  *           schema: { $ref: '#/components/schemas/Recipe' }
  *     responses:
- *       200: { description: Updated recipe. }
+ *       200: { description: Updated recipe, now pending admin review. }
  *       403: { description: Admin role required. }
  *       404: { description: Recipe not found. }
  *   delete:
@@ -230,6 +233,61 @@ export default swaggerJsdoc(options);
  *       204: { description: Recipe deleted. }
  *       403: { description: Admin role required. }
  *       404: { description: Recipe not found. }
+ * /api/v1/recipes/{id}/review:
+ *   patch:
+ *     summary: Approve or reject a pending recipe (admin only)
+ *     tags: [Recipes]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status: { type: string, enum: [approved, rejected] }
+ *               reviewNote: { type: string, maxLength: 500 }
+ *     responses:
+ *       200: { description: Review saved. Approved recipes are published. }
+ *       400: { description: Invalid review status or note. }
+ *       403: { description: Admin role required. }
+ *       404: { description: Pending recipe not found. }
+ * /api/v1/recipes/submissions:
+ *   post:
+ *     summary: Submit a recipe for admin review
+ *     tags: [Recipes]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/Recipe' }
+ *     responses:
+ *       201: { description: Recipe submitted with pending status. }
+ *       401: { description: Authentication required. }
+ * /api/v1/recipes/submissions/mine:
+ *   get:
+ *     summary: List the current user's recipe submissions and review status
+ *     tags: [Recipes]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Current user's submissions, including review feedback. }
+ *       401: { description: Authentication required. }
+ * /api/v1/recipes/review-queue:
+ *   get:
+ *     summary: List pending recipes for admin review
+ *     tags: [Recipes]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Pending recipes and submitter details. }
+ *       401: { description: Authentication required. }
+ *       403: { description: Admin role required. }
  * /api/v1/favorites:
  *   get:
  *     summary: List current user's favorites

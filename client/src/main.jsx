@@ -9,7 +9,7 @@ import './styles.css';
 
 function Layout({ children }) {
   const { user, logout } = useAuth();
-  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link><Link to="/ingredient-search">By ingredients</Link>{user ? <><Link to="/meal-planner">Meal plan</Link><Link to="/shopping-list">Shopping list</Link>{user.role === 'admin' && <Link to="/admin/recipes">Manage</Link>}<span className="user-greeting">Hi, {user.name}</span><button className="logout-button" type="button" onClick={logout}>Log out</button></> : <><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></>}</nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
+  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link><Link to="/ingredient-search">By ingredients</Link>{user ? <><Link to="/submit-recipe">Submit recipe</Link><Link to="/my-submissions">My submissions</Link><Link to="/meal-planner">Meal plan</Link><Link to="/shopping-list">Shopping list</Link>{user.role === 'admin' && <><Link to="/admin/review">Review queue</Link><Link to="/admin/recipes">Manage</Link></>}<span className="user-greeting">Hi, {user.name}</span><button className="logout-button" type="button" onClick={logout}>Log out</button></> : <><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></>}</nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
 }
 
 function HomePage() {
@@ -209,6 +209,129 @@ function RecipeDetailPage() {
   return <main className="page-container detail-page"><Link className="back-link" to="/recipes">← Back to recipes</Link><p className="eyebrow">{recipe.category}</p><h1>{recipe.title}</h1><p className="detail-description">{recipe.description}</p><div className="detail-meta"><span>{recipe.prepTime + recipe.cookTime} min total</span><span>{recipe.servings} servings</span></div><button className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} type="button" onClick={toggleFavorite} disabled={favoriteLoading}>{favoriteLoading ? 'Updating...' : isFavorite ? '♥ Saved to favorites' : '♡ Save to favorites'}</button>{favoriteError && <p className="form-error">{favoriteError}</p>}<section className="detail-section"><h2>Ingredients</h2><ul>{recipe.ingredients.map((ingredient) => <li key={`${ingredient.name}-${ingredient.quantity}`}><span>{ingredient.name}</span><strong>{ingredient.quantity}</strong></li>)}</ul></section><section className="detail-section"><h2>Instructions</h2><ol>{recipe.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol></section></main>;
 }
 
+const emptySubmission = { title: '', description: '', category: 'Vietnamese', prepTime: 0, cookTime: 0, servings: 2, ingredients: '', instructions: '' };
+
+function SubmitRecipePage() {
+  const { user } = useAuth();
+  const [form, setForm] = useState(emptySubmission);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
+  async function submitRecipe(event) {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+    const ingredientLines = form.ingredients.split('\n').map((line) => line.trim()).filter(Boolean);
+    const ingredients = ingredientLines.map((line) => {
+      const [name, ...quantityParts] = line.split('|');
+      return { name: name.trim(), quantity: quantityParts.join('|').trim() };
+    });
+    if (ingredients.length === 0 || ingredients.some((item) => !item.name || !item.quantity)) {
+      setError('Enter each ingredient as name|quantity, with one ingredient per line.');
+      return;
+    }
+    const instructions = form.instructions.split('\n').map((line) => line.trim()).filter(Boolean);
+    if (instructions.length === 0) {
+      setError('Add at least one instruction step.');
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      ...form,
+      prepTime: Number(form.prepTime),
+      cookTime: Number(form.cookTime),
+      servings: Number(form.servings),
+      ingredients,
+      instructions,
+    };
+    try {
+      await api.post('/recipes/submissions', payload);
+      setForm(emptySubmission);
+      setMessage('Recipe submitted. It will be published after admin approval.');
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to submit recipe. Please check the form and try again.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!user) return <main className="page-container content-page"><p className="form-error">Log in to submit a recipe.</p><Link to="/login">Go to login →</Link></main>;
+  return <main className="page-container content-page"><p className="eyebrow">SHARE A FAVORITE</p><h1>Submit a recipe</h1><p className="muted submission-intro">Your recipe stays private until an admin reviews and approves it.</p><form className="recipe-admin-form" onSubmit={submitRecipe}>
+    <label className="field-label">Recipe title<input required maxLength="120" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></label>
+    <label className="field-label">Category<input required value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} /></label>
+    <label className="field-label">Description<textarea required maxLength="500" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>
+    <div className="form-row"><label className="field-label">Prep time (minutes)<input min="0" type="number" value={form.prepTime} onChange={(event) => setForm({ ...form, prepTime: event.target.value })} /></label><label className="field-label">Cook time (minutes)<input min="0" type="number" value={form.cookTime} onChange={(event) => setForm({ ...form, cookTime: event.target.value })} /></label><label className="field-label">Servings<input min="1" type="number" value={form.servings} onChange={(event) => setForm({ ...form, servings: event.target.value })} /></label></div>
+    <label className="field-label">Ingredients, one per line: name|quantity<textarea required value={form.ingredients} onChange={(event) => setForm({ ...form, ingredients: event.target.value })} placeholder={'Beef|200g\nRice noodles|150g'} /></label>
+    <label className="field-label">Instructions, one step per line<textarea required value={form.instructions} onChange={(event) => setForm({ ...form, instructions: event.target.value })} /></label>
+    {error && <p className="form-error" role="alert">{error}</p>}{message && <p className="success-message" role="status">{message} <Link to="/my-submissions">Check submission status →</Link></p>}
+    <button className="primary-button" type="submit" disabled={saving}>{saving ? 'Submitting...' : 'Submit for review'}</button>
+  </form></main>;
+}
+
+function MySubmissionsPage() {
+  const { user } = useAuth();
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    if (!user) return () => { active = false; };
+    api.get('/recipes/submissions/mine').then(({ data }) => { if (active) setRecipes(data.recipes); })
+      .catch((requestError) => { if (active) setError(requestError.response?.data?.message || 'Unable to load your submissions.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [user]);
+
+  if (!user) return <main className="page-container content-page"><p className="form-error">Log in to view your submissions.</p><Link to="/login">Go to login →</Link></main>;
+  return <main className="page-container content-page"><p className="eyebrow">YOUR CONTRIBUTIONS</p><h1>My submissions</h1>{loading && <p className="muted">Loading submissions...</p>}{error && <p className="form-error">{error}</p>}{!loading && !error && recipes.length === 0 && <p className="muted">You have not submitted any recipes yet.</p>}<div className="submission-list">{recipes.map((recipe) => <article className="submission-card" key={recipe._id}><div className="submission-card-heading"><div><span className={`status-badge status-${recipe.status}`}>{recipe.status}</span><h2>{recipe.title}</h2><p>{recipe.category} · Submitted {new Date(recipe.createdAt).toLocaleDateString()}</p></div>{recipe.status === 'approved' && <Link className="text-link" to={`/recipes/${recipe._id}`}>View published recipe →</Link>}</div>{recipe.status === 'rejected' && recipe.reviewNote && <p className="review-note"><strong>Admin feedback:</strong> {recipe.reviewNote}</p>}</article>)}</div></main>;
+}
+
+function AdminReviewPage() {
+  const { user } = useAuth();
+  const [recipes, setRecipes] = useState([]);
+  const [notes, setNotes] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
+  async function loadQueue() {
+    const { data } = await api.get('/recipes/review-queue');
+    setRecipes(data.recipes);
+  }
+
+  useEffect(() => {
+    let active = true;
+    if (user?.role !== 'admin') return () => { active = false; };
+    api.get('/recipes/review-queue').then(({ data }) => { if (active) setRecipes(data.recipes); })
+      .catch((requestError) => { if (active) setError(requestError.response?.data?.message || 'Unable to load the review queue.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [user]);
+
+  async function review(id, status) {
+    setSavingId(id);
+    setError('');
+    setMessage('');
+    try {
+      await api.patch(`/recipes/${id}/review`, { status, reviewNote: notes[id] || '' });
+      setRecipes((current) => current.filter((recipe) => recipe._id !== id));
+      setMessage(status === 'approved' ? 'Recipe approved and published.' : 'Recipe rejected; the submitter can see your feedback.');
+      setNotes((current) => { const next = { ...current }; delete next[id]; return next; });
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to review this recipe.');
+      try { await loadQueue(); } catch { /* Keep the original request error visible. */ }
+    } finally {
+      setSavingId('');
+    }
+  }
+
+  if (user?.role !== 'admin') return <main className="page-container content-page"><p className="form-error">Admin access required.</p><Link to="/recipes">Back to recipes →</Link></main>;
+  return <main className="page-container content-page"><p className="eyebrow">ADMIN TOOLS</p><h1>Review recipes</h1>{loading && <p className="muted">Loading review queue...</p>}{error && <p className="form-error" role="alert">{error}</p>}{message && <p className="success-message" role="status">{message}</p>}{!loading && !error && recipes.length === 0 && <p className="muted">No recipes are waiting for review.</p>}<div className="submission-list">{recipes.map((recipe) => <article className="review-card" key={recipe._id}><div className="submission-card-heading"><div><span className="status-badge status-pending">pending</span><h2>{recipe.title}</h2><p>{recipe.category} · Submitted by {recipe.createdBy?.name || recipe.createdBy?.email || 'User'}</p></div><span className="muted">{new Date(recipe.createdAt).toLocaleDateString()}</span></div><p>{recipe.description}</p><section><h3>Ingredients</h3><ul>{recipe.ingredients.map((item) => <li key={`${item.name}-${item.quantity}`}>{item.name} — {item.quantity}</li>)}</ul></section><section><h3>Instructions</h3><ol>{recipe.instructions.map((step) => <li key={step}>{step}</li>)}</ol></section><label className="field-label">Feedback (optional for rejection)<textarea maxLength="500" value={notes[recipe._id] || ''} onChange={(event) => setNotes((current) => ({ ...current, [recipe._id]: event.target.value }))} placeholder="Suggest what the author should change" /></label><div className="form-actions"><button className="primary-button" type="button" disabled={Boolean(savingId)} onClick={() => review(recipe._id, 'approved')}>{savingId === recipe._id ? 'Saving...' : 'Approve and publish'}</button><button className="secondary-button reject-button" type="button" disabled={Boolean(savingId)} onClick={() => review(recipe._id, 'rejected')}>Reject</button></div></article>)}</div></main>;
+}
+
 function MealPlannerPage() {
   const { token } = useAuth(); const [plans, setPlans] = useState([]); const [recipes, setRecipes] = useState([]); const [form, setForm] = useState({ date: new Date().toISOString().slice(0, 10), mealType: 'dinner', recipeId: '' }); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
   async function loadData() { if (!token) { setLoading(false); return; } setLoading(true); setError(''); try { const [plansResponse, recipesResponse] = await Promise.all([api.get('/meal-plans'), api.get('/recipes')]); setPlans(plansResponse.data.mealPlans); setRecipes(recipesResponse.data.recipes); setForm((current) => ({ ...current, recipeId: current.recipeId || recipesResponse.data.recipes[0]?._id || '' })); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to load meal planner.'); } finally { setLoading(false); } }
@@ -268,6 +391,6 @@ function AuthPage({ register = false }) {
   return <main className="page-container auth-page"><p className="eyebrow">COOKMATE ACCOUNT</p><h1>{register ? 'Create your account' : 'Welcome back'}</h1><form className="auth-form" onSubmit={handleSubmit}>{register && <label>Name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>}<label>Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label><label>Password<input required minLength={register ? 8 : 1} pattern={register ? '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$' : undefined} title={register ? 'Use at least 8 characters with uppercase, lowercase, and a number' : undefined} type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={register ? '8+ chars, upper/lowercase and number' : 'Your password'} /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button" disabled={loading} type="submit">{loading ? 'Please wait...' : register ? 'Create account' : 'Log in'}</button></form></main>;
 }
 
-function App() { return <Layout><Routes><Route path="/" element={<HomePage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/ingredient-search" element={<IngredientSearchPage />} /><Route path="/recipes/:id" element={<RecipeDetailPage />} /><Route path="/meal-planner" element={<MealPlannerPage />} /><Route path="/shopping-list" element={<ShoppingListPage />} /><Route path="/admin/recipes" element={<RecipeManagementPage />} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /></Routes></Layout>; }
+function App() { return <Layout><Routes><Route path="/" element={<HomePage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/ingredient-search" element={<IngredientSearchPage />} /><Route path="/recipes/:id" element={<RecipeDetailPage />} /><Route path="/submit-recipe" element={<SubmitRecipePage />} /><Route path="/my-submissions" element={<MySubmissionsPage />} /><Route path="/admin/review" element={<AdminReviewPage />} /><Route path="/meal-planner" element={<MealPlannerPage />} /><Route path="/shopping-list" element={<ShoppingListPage />} /><Route path="/admin/recipes" element={<RecipeManagementPage />} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /></Routes></Layout>; }
 
 createRoot(document.getElementById('root')).render(<StrictMode><BrowserRouter><AuthProvider><App /></AuthProvider></BrowserRouter></StrictMode>);
