@@ -27,7 +27,7 @@
 - [x] Thêm tìm kiếm và lọc
 - [x] Kiểm tra quyền sửa/xóa
 - [~] Tạo model Favorite và làm API favorite
-- [~] Tạo 8–12 công thức mẫu
+- [~] Tạo 100 công thức mẫu
 
 ## Ngày 4 — Meal plan, pantry và shopping list
 
@@ -64,9 +64,9 @@
 - [x] Cấu hình CORS và environment variables production
 - [x] Tạo API documentation public bằng Postman hoặc Swagger
 - [x] Public API base URL và kiểm tra các endpoint trên môi trường production
-- [~] Hoàn thiện README và link live
+- [x] Hoàn thiện README và link live
 - [ ] Làm PowerPoint 8–10 slide
-- [ ] Chuẩn bị tài khoản và dữ liệu demo
+- [~] Chuẩn bị tài khoản và dữ liệu demo
 - [ ] Quay video dự phòng
 
 ## Flow demo chính
