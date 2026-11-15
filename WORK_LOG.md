@@ -341,3 +341,11 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Kiểm tra nội bộ: module xuất đúng 100 mục, 100 tiêu đề duy nhất, mọi mục có category/description/ingredients/instructions; Node syntax check, server lint và `git diff --check` đạt.
 - Project owner xác nhận seed 100 công thức và kiểm tra thành công qua Postman trên MongoDB local.
 - Thay đổi đang được chuẩn bị commit/push trên branch `feature/demo-recipe-data`; checklist vẫn `[~]` cho đến khi PR được merge.
+
+### 2026-11-15 — Chuyển lỗi async backend vào error handler tập trung — đang chờ project owner test
+
+- Đồng bộ từ `origin/develop` tại `c83fed5` và tạo branch `fix/backend-async-errors`.
+- Thêm `asyncHandler` để chuyển Promise rejection của các controller async qua Express error middleware trên Express 4; áp dụng cho auth, recipes, favorites, meal plans và shopping list.
+- Thêm error middleware trả `400` cho Mongoose CastError/ValidationError, `500` với thông báo chung cho lỗi ngoài dự kiến; không gửi stack trace hay thông tin validation nhạy cảm cho client.
+- Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` đạt; request HTTP cô lập `GET /api/v1/recipes/not-an-object-id` trả `400`, tiếp theo `GET /api/v1/health` vẫn trả `200`; `git diff --check` đạt.
+- Chưa commit/push. Chờ project owner chạy kiểm tra thủ công trước khi cho phép commit/push.

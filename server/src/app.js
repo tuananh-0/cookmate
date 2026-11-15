@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
 import recipeRoutes from './routes/recipeRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
@@ -43,6 +44,15 @@ app.use('/api/v1/shopping-list', shoppingListRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Route not found' });
+});
+
+app.use((error, _req, res, _next) => {
+  if (error instanceof mongoose.Error.CastError || error instanceof mongoose.Error.ValidationError) {
+    return res.status(400).json({ message: 'Invalid request data' });
+  }
+
+  console.error(error);
+  return res.status(500).json({ message: 'Internal server error' });
 });
 
 export default app;
