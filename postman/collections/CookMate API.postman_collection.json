@@ -2,12 +2,12 @@
   "info": {
     "_postman_id": "93bf94e8-3664-49be-8b75-618a1d773bf1",
     "name": "CookMate API",
-    "description": "Public API reference for CookMate. Set the baseUrl variable to the deployed API origin or http://localhost:5000, then authenticate to populate the token variable.",
+    "description": "Public API reference for CookMate. The baseUrl defaults to the production API. Change it to http://localhost:5000 for local development, then authenticate to populate the token variable.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "baseUrl", "value": "https://cookmate-j4o2.onrender.com" },
     { "key": "token", "value": "" },
     { "key": "recipeId", "value": "" },
     { "key": "mealPlanId", "value": "" },

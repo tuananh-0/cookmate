@@ -8,7 +8,10 @@ const options = {
       version: '1.0.0',
       description: 'API for recipe discovery, favorites, meal planning, and shopping lists.',
     },
-    servers: [{ url: 'http://localhost:5000', description: 'Local development' }],
+    servers: [
+      { url: 'https://cookmate-j4o2.onrender.com', description: 'Production' },
+      { url: 'http://localhost:5000', description: 'Local development' },
+    ],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

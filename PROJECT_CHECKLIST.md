@@ -61,9 +61,9 @@
 - [x] Deploy MongoDB Atlas
 - [x] Deploy backend
 - [x] Deploy frontend
-- [~] Cấu hình CORS và environment variables production
+- [x] Cấu hình CORS và environment variables production
 - [x] Tạo API documentation public bằng Postman hoặc Swagger
-- [ ] Public API base URL và kiểm tra các endpoint trên môi trường production
+- [~] Public API base URL và kiểm tra các endpoint trên môi trường production
 - [ ] Hoàn thiện README và link live
 - [ ] Làm PowerPoint 8–10 slide
 - [ ] Chuẩn bị tài khoản và dữ liệu demo
