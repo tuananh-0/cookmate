@@ -26,13 +26,13 @@
 - [x] Làm API list/detail/create/update/delete recipe
 - [x] Thêm tìm kiếm và lọc
 - [x] Kiểm tra quyền sửa/xóa
-- [~] Tạo model Favorite và làm API favorite
+- [x] Tạo model Favorite và làm API favorite
 - [~] Tạo 100 công thức mẫu
 
 ## Ngày 4 — Meal plan, pantry và shopping list
 
-- [~] Tạo model MealPlan
-- [~] Làm thực đơn theo ngày hoặc tuần
+- [x] Tạo model MealPlan
+- [x] Làm thực đơn theo ngày hoặc tuần
 - [x] Tạo shopping list đơn giản từ meal plan
 - [~] Gộp nguyên liệu trùng nhau nếu còn thời gian
 - [ ] Pantry là chức năng bonus, chỉ làm sau khi hoàn thành MVP
@@ -42,20 +42,20 @@
 - [~] Tạo layout, navbar và responsive cơ bản
 - [~] Làm Login/Register, lưu JWT và logout
 - [~] Làm Home, recipe list và recipe card
-- [~] Làm search/filter
+- [x] Làm search/filter
 - [~] Làm recipe detail
 - [~] Làm form create/edit/delete recipe
-- [~] Làm favorite button
+- [x] Làm favorite button
 
 ## Ngày 6 — Hoàn thiện và kiểm thử
 
-- [~] Làm meal planner page
+- [x] Làm meal planner page
 - [x] Làm shopping list page
-- [~] Kết nối toàn bộ API với frontend
+- [x] Kết nối toàn bộ API với frontend
 - [~] Xử lý loading, error, empty state và token hết hạn
-- [~] Kiểm tra phân quyền và các nghiệp vụ chính
+- [x] Kiểm tra phân quyền và các nghiệp vụ chính
 - [x] Không trả email creator trong recipe detail công khai
-- [~] Chạy build, lint và rà console error
+- [x] Chạy build, lint và rà console error
 
 ## Ngày 7 — Deploy và thuyết trình
 

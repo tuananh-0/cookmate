@@ -392,3 +392,13 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Chạy Vite preview và gọi trực tiếp `/`, `/recipes`, `/recipes/:id`, `/meal-planner`, `/shopping-list`, `/admin/recipes`; đều trả `200`, asset JS/CSS cũng trả `200`.
 - Project owner xác nhận đã tự kiểm tra giao diện thành công, gồm các luồng chính trên production. Request HTTP trực tiếp tới production từ workspace vẫn bị đóng kết nối nên phần smoke test production được xác nhận qua trình duyệt của project owner.
 - Không phát hiện lỗi chức năng/console cần sửa trong phạm vi kiểm tra; không thêm thay đổi code chức năng. Checklist giữ `[~]` cho đến khi thay đổi nhật ký/checklist được commit và PR merge.
+- Project owner xác nhận PR #33 đã merge vào `develop`; merge commit `6106641`. Đồng bộ local `develop` bằng fast-forward và hoàn tất checklist cho các luồng search, favorites, meal planning, kết nối API, phân quyền, build/lint và rà console.
+
+### 2026-11-15 — Rà soát loading/error, phiên đăng nhập, recipe detail và admin CRUD — đã tự test
+
+- Tạo branch duy nhất `feature/v1-ui-edge-case-review` từ `develop` tại `6106641`; mang theo cập nhật checklist/work log còn chưa commit sau PR #33.
+- Đồng bộ khởi tạo auth session: token và user được đọc/xóa cùng nhau để tránh navbar hiển thị đã đăng nhập khi localStorage chỉ còn một nửa session hoặc JSON user bị lỗi.
+- Recipe detail phân biệt 404 với lỗi tải tạm thời, có nút thử lại; trạng thái tải theo recipe ID và trạng thái favorite theo user/recipe để tránh hiển thị recipe/favorite cũ khi chuyển trang hoặc tài khoản.
+- Trang admin recipe có loading và empty state, khóa nút submit trong lúc lưu, khóa thao tác danh sách khi xóa, hiển thị tiến độ; nếu lưu thành công nhưng tải lại danh sách lỗi thì báo rõ dữ liệu đã lưu.
+- Kiểm tra nội bộ: frontend lint/build và backend lint đạt. Smoke test API trên MongoDB local tạm xác nhận session hết hạn trả `401`, user thường bị từ chối CRUD, admin tạo/sửa/xóa recipe thành công, recipe đã xóa trả `404`, ID sai trả `400`; database tạm đã được xóa.
+- Project owner xác nhận đã tự kiểm tra thành công các luồng session, recipe detail và quản lý công thức trên trình duyệt. Có thể commit/push branch để mở PR; các mục checklist liên quan vẫn `[~]` cho tới khi PR được merge.
