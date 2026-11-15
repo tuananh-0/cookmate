@@ -53,7 +53,7 @@
 - [~] Làm shopping list page
 - [ ] Kết nối toàn bộ API với frontend
 - [~] Xử lý loading, error, empty state và token hết hạn
-- [ ] Kiểm tra phân quyền và các nghiệp vụ chính
+- [~] Kiểm tra phân quyền và các nghiệp vụ chính
 - [ ] Chạy build, lint và sửa console error
 
 ## Ngày 7 — Deploy và thuyết trình

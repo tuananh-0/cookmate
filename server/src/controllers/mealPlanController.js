@@ -27,12 +27,21 @@ export async function createMealPlan(req, res) {
 }
 
 export async function updateMealPlan(req, res) {
-  const updates = { ...req.body };
-  if (updates.recipeId) {
-    const recipe = await Recipe.findById(updates.recipeId);
+  const allowedFields = ['date', 'mealType', 'note'];
+  const updates = Object.fromEntries(
+    allowedFields
+      .filter((field) => Object.hasOwn(req.body, field))
+      .map((field) => [field, req.body[field]]),
+  );
+
+  if (Object.hasOwn(req.body, 'recipeId')) {
+    const recipe = await Recipe.findById(req.body.recipeId);
     if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
-    updates.recipe = updates.recipeId;
-    delete updates.recipeId;
+    updates.recipe = req.body.recipeId;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ message: 'No valid fields to update' });
   }
 
   const mealPlan = await MealPlan.findOneAndUpdate(
