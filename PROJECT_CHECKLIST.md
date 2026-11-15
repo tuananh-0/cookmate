@@ -39,12 +39,12 @@
 
 ## Ngày 5 — Frontend chính
 
-- [~] Tạo layout, navbar và responsive cơ bản
-- [~] Làm Login/Register, lưu JWT và logout
-- [~] Làm Home, recipe list và recipe card
+- [x] Tạo layout, navbar và responsive cơ bản
+- [x] Làm Login/Register, lưu JWT và logout
+- [x] Làm Home, recipe list và recipe card
 - [x] Làm search/filter
-- [~] Làm recipe detail
-- [~] Làm form create/edit/delete recipe
+- [x] Làm recipe detail
+- [x] Làm form create/edit/delete recipe
 - [x] Làm favorite button
 
 ## Ngày 6 — Hoàn thiện và kiểm thử
@@ -52,7 +52,7 @@
 - [x] Làm meal planner page
 - [x] Làm shopping list page
 - [x] Kết nối toàn bộ API với frontend
-- [~] Xử lý loading, error, empty state và token hết hạn
+- [x] Xử lý loading, error, empty state và token hết hạn
 - [x] Kiểm tra phân quyền và các nghiệp vụ chính
 - [x] Không trả email creator trong recipe detail công khai
 - [x] Chạy build, lint và rà console error
@@ -67,7 +67,7 @@
 - [x] Public API base URL và kiểm tra các endpoint trên môi trường production
 - [x] Hoàn thiện README và link live
 - [ ] Làm PowerPoint 8–10 slide
-- [~] Chuẩn bị tài khoản và dữ liệu demo
+- [x] Chuẩn bị tài khoản và dữ liệu demo
 - [ ] Quay video dự phòng
 
 ## Flow demo chính
