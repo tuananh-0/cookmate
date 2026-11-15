@@ -321,4 +321,15 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Viết lại README tiếng Việt với mô tả MVP, công nghệ, link app/API/Swagger/endpoints, hướng dẫn cài đặt local trên PowerShell, cấu hình `.env`, Postman và cấu trúc repo.
 - Kiểm tra nội bộ: `git diff --check` đạt và các đường dẫn tương đối trong README đều trỏ tới file có thật.
 - Project owner xác nhận các link README/live hoạt động ổn.
-- Đủ điều kiện commit/push. Checklist README vẫn `[~]` cho đến khi PR được merge.
+- Commit `0505070` đã push; PR #26 đã merge vào `develop` tại `5f24506`; đồng bộ local `develop` bằng fast-forward.
+- Đánh dấu task README và link live `[x]` trong checklist.
+
+### 2026-11-15 — An toàn hơn cho seed dữ liệu demo — đã tự kiểm tra
+
+- Đồng bộ `develop` tại `5f245062` và tạo branch `feature/demo-recipe-data`.
+- Điều chỉnh `seed:recipes` để yêu cầu `MONGO_URI` và `SEED_USER_EMAIL` rõ ràng; không tự chọn user đầu tiên hoặc tự kết nối MongoDB local khi thiếu cấu hình.
+- Seed vẫn upsert theo title, có thể chạy lại mà không tạo bản ghi trùng; luôn đóng kết nối kể cả khi gặp lỗi.
+- Project owner chạy seed hai lần trên MongoDB local; cả hai lần đều báo seed 8 công thức cho tài khoản được chỉ định. Backend local kết nối thành công ở cổng 5000.
+- Postman `GET /api/v1/recipes` trả 10 bản ghi: 8 công thức seed và 2 công thức đã có sẵn; không có bản sao do seed.
+- Chỉ chạy trên MongoDB local; không seed vào Atlas hay production.
+- Kiểm tra nội bộ: server lint, cú pháp Node.js và `git diff --check` đều đạt.

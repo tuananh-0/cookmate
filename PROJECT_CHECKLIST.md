@@ -64,9 +64,9 @@
 - [x] Cấu hình CORS và environment variables production
 - [x] Tạo API documentation public bằng Postman hoặc Swagger
 - [x] Public API base URL và kiểm tra các endpoint trên môi trường production
-- [~] Hoàn thiện README và link live
+- [x] Hoàn thiện README và link live
 - [ ] Làm PowerPoint 8–10 slide
-- [ ] Chuẩn bị tài khoản và dữ liệu demo
+- [~] Chuẩn bị tài khoản và dữ liệu demo
 - [ ] Quay video dự phòng
 
 ## Flow demo chính
