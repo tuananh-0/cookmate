@@ -9,7 +9,7 @@ import './styles.css';
 
 function Layout({ children }) {
   const { user, logout } = useAuth();
-  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link>{user ? <><Link to="/meal-planner">Meal plan</Link><Link to="/shopping-list">Shopping list</Link>{user.role === 'admin' && <Link to="/admin/recipes">Manage</Link>}<span className="user-greeting">Hi, {user.name}</span><button className="logout-button" type="button" onClick={logout}>Log out</button></> : <><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></>}</nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
+  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link><Link to="/ingredient-search">By ingredients</Link>{user ? <><Link to="/meal-planner">Meal plan</Link><Link to="/shopping-list">Shopping list</Link>{user.role === 'admin' && <Link to="/admin/recipes">Manage</Link>}<span className="user-greeting">Hi, {user.name}</span><button className="logout-button" type="button" onClick={logout}>Log out</button></> : <><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></>}</nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
 }
 
 function HomePage() {
@@ -22,6 +22,115 @@ function RecipesPage() {
   const rankedRecipes = [...recipes].sort((a, b) => { const query = search.trim().toLowerCase(); const aStarts = query && a.title.toLowerCase().startsWith(query); const bStarts = query && b.title.toLowerCase().startsWith(query); return Number(bStarts) - Number(aStarts); });
   const suggestions = search.trim() ? rankedRecipes.filter((recipe) => recipe.title.toLowerCase().includes(search.trim().toLowerCase())).slice(0, 5) : [];
   return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><div className="recipe-toolbar"><div className="search-box"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search recipes..." aria-label="Search recipes" />{suggestions.length > 0 && !loading && <div className="search-suggestions" role="listbox">{suggestions.map((recipe) => <button type="button" key={recipe._id} onClick={() => setSearch(recipe.title)}>{recipe.title}<small>{recipe.category}</small></button>)}</div>}</div><select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category"><option value="">All categories</option><option value="Vietnamese">Vietnamese</option><option value="Italian">Italian</option><option value="Healthy">Healthy</option><option value="Japanese">Japanese</option><option value="Breakfast">Breakfast</option><option value="Vegetarian">Vegetarian</option></select></div>{loading && <p className="muted">Loading recipes...</p>}{error && <p className="form-error">{error}</p>}{!loading && !error && rankedRecipes.length === 0 && <p className="muted">No recipes found.</p>}<div className="recipe-grid">{rankedRecipes.map((recipe) => <Link className="recipe-card" to={`/recipes/${recipe._id}`} key={recipe._id}><div className="recipe-image">🍲</div><div className="recipe-card-body"><span className="recipe-category">{recipe.category}</span><h2>{recipe.title}</h2><p>{recipe.description}</p><small>{recipe.prepTime + recipe.cookTime} min · {recipe.servings} servings</small></div></Link>)}</div></main>;
+}
+
+function IngredientSearchPage() {
+  const { token } = useAuth();
+  const [availableIngredients, setAvailableIngredients] = useState([]);
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
+  const [input, setInput] = useState('');
+  const [matches, setMatches] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [loadingIngredients, setLoadingIngredients] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [addingRecipeId, setAddingRecipeId] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    api.get('/recipes/ingredients')
+      .then(({ data }) => { if (active) setAvailableIngredients(data.ingredients); })
+      .catch(() => { if (active) setError('Unable to load ingredient suggestions. You can still type an ingredient manually.'); })
+      .finally(() => { if (active) setLoadingIngredients(false); });
+    return () => { active = false; };
+  }, []);
+
+  function addIngredient(event) {
+    event.preventDefault();
+    const name = input.trim().replace(/\s+/g, ' ');
+    if (!name) return;
+    if (selectedIngredients.some((item) => item.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+      setInput('');
+      return;
+    }
+    if (selectedIngredients.length >= 30) {
+      setError('You can add up to 30 ingredients.');
+      return;
+    }
+    setSelectedIngredients((current) => [...current, name]);
+    setInput('');
+    setMatches([]);
+    setHasSearched(false);
+    setMessage('');
+    setError('');
+  }
+
+  async function findMatches(event) {
+    event.preventDefault();
+    if (!selectedIngredients.length) {
+      setError('Add at least one ingredient to find matching recipes.');
+      return;
+    }
+    setSearching(true);
+    setHasSearched(true);
+    setError('');
+    setMessage('');
+    try {
+      const { data } = await api.post('/recipes/match', { ingredients: selectedIngredients });
+      setMatches(data.recipes);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to find matching recipes. Please try again.');
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  async function addMissingIngredients(match) {
+    setAddingRecipeId(match.recipe._id);
+    setError('');
+    setMessage('');
+    try {
+      const { data } = await api.post('/shopping-list', { items: match.missingIngredients });
+      setMessage(data.count
+        ? `Added ${data.count} missing ingredient${data.count === 1 ? '' : 's'} for ${match.recipe.title}.`
+        : `All missing ingredients for ${match.recipe.title} are already on your shopping list.`);
+    } catch (requestError) {
+      setError(requestError.response?.status === 401
+        ? 'Your session has expired. Please log in again to update the shopping list.'
+        : requestError.response?.data?.message || 'Unable to update your shopping list.');
+    } finally {
+      setAddingRecipeId('');
+    }
+  }
+
+  return <main className="page-container content-page ingredient-search-page">
+    <p className="eyebrow">COOK WITH WHAT YOU HAVE</p>
+    <h1>Find recipes by ingredients</h1>
+    <p className="muted ingredient-search-intro">Choose or type ingredients you already have. CookMate will show what each recipe matches and what is still missing.</p>
+    <form className="ingredient-picker" onSubmit={addIngredient}>
+      <label htmlFor="ingredient-input">Your ingredients</label>
+      <div className="ingredient-input-row">
+        <input id="ingredient-input" list="recipe-ingredient-options" value={input} onChange={(event) => setInput(event.target.value)} placeholder="e.g. tomato, rice, chicken" maxLength={100} />
+        <datalist id="recipe-ingredient-options">{availableIngredients.map((ingredient) => <option key={ingredient} value={ingredient} />)}</datalist>
+        <button className="secondary-button" type="submit">Add ingredient</button>
+      </div>
+      {loadingIngredients && <p className="muted">Loading suggestions...</p>}
+      {!!selectedIngredients.length && <ul className="ingredient-chips" aria-label="Selected ingredients">{selectedIngredients.map((ingredient) => <li className="ingredient-chip" key={ingredient}><span>{ingredient}</span><button type="button" aria-label={`Remove ${ingredient}`} onClick={() => { setSelectedIngredients((current) => current.filter((item) => item !== ingredient)); setMatches([]); }}>×</button></li>)}</ul>}
+      <button className="primary-button" type="button" onClick={findMatches} disabled={searching || !selectedIngredients.length}>{searching ? 'Finding recipes...' : 'Find matching recipes'}</button>
+    </form>
+    {error && <p className="form-error" role="alert">{error}</p>}
+    {message && <p className="success-message" role="status">{message} {token && <Link to="/shopping-list">View shopping list →</Link>}</p>}
+    {!searching && matches.length === 0 && !hasSearched && selectedIngredients.length > 0 && <p className="muted">Choose “Find matching recipes” to see suggestions.</p>}
+    {!searching && matches.length === 0 && !error && hasSearched && selectedIngredients.length > 0 && <p className="muted">No matching recipes yet. Try adding another ingredient.</p>}
+    {!!matches.length && <section className="ingredient-results" aria-live="polite"><h2>Matching recipes <span className="muted">({matches.length})</span></h2>{matches.map((match) => <article className="ingredient-match-card" key={match.recipe._id}>
+      <div className="ingredient-match-heading"><div><span className="recipe-category">{match.recipe.category}</span><h3><Link to={`/recipes/${match.recipe._id}`}>{match.recipe.title}</Link></h3><p>{match.matchCount} of {match.totalIngredients} ingredients available</p></div><Link className="text-link" to={`/recipes/${match.recipe._id}`}>View recipe →</Link></div>
+      <div className="ingredient-groups"><div><h4>Have</h4><ul>{match.matchedIngredients.map((item) => <li key={`${item.name}-${item.quantity}`}>{item.name} <span>{item.quantity}</span></li>)}</ul></div><div><h4>Missing</h4>{match.missingIngredients.length ? <ul>{match.missingIngredients.map((item) => <li key={`${item.name}-${item.quantity}`}>{item.name} <span>{item.quantity}</span></li>)}</ul> : <p className="muted">You have everything for this recipe.</p>}</div></div>
+      {match.missingIngredients.length > 0 && (token
+        ? <button className="secondary-button" type="button" disabled={Boolean(addingRecipeId)} onClick={() => addMissingIngredients(match)}>{addingRecipeId === match.recipe._id ? 'Adding...' : 'Add missing items to shopping list'}</button>
+        : <p className="muted"> <Link to="/login">Log in</Link> to add missing items to your shopping list.</p>)}
+    </article>)}</section>}
+  </main>;
 }
 
 function RecipeDetailPage() {
@@ -159,6 +268,6 @@ function AuthPage({ register = false }) {
   return <main className="page-container auth-page"><p className="eyebrow">COOKMATE ACCOUNT</p><h1>{register ? 'Create your account' : 'Welcome back'}</h1><form className="auth-form" onSubmit={handleSubmit}>{register && <label>Name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>}<label>Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label><label>Password<input required minLength={register ? 8 : 1} pattern={register ? '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$' : undefined} title={register ? 'Use at least 8 characters with uppercase, lowercase, and a number' : undefined} type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={register ? '8+ chars, upper/lowercase and number' : 'Your password'} /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button" disabled={loading} type="submit">{loading ? 'Please wait...' : register ? 'Create account' : 'Log in'}</button></form></main>;
 }
 
-function App() { return <Layout><Routes><Route path="/" element={<HomePage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/recipes/:id" element={<RecipeDetailPage />} /><Route path="/meal-planner" element={<MealPlannerPage />} /><Route path="/shopping-list" element={<ShoppingListPage />} /><Route path="/admin/recipes" element={<RecipeManagementPage />} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /></Routes></Layout>; }
+function App() { return <Layout><Routes><Route path="/" element={<HomePage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/ingredient-search" element={<IngredientSearchPage />} /><Route path="/recipes/:id" element={<RecipeDetailPage />} /><Route path="/meal-planner" element={<MealPlannerPage />} /><Route path="/shopping-list" element={<ShoppingListPage />} /><Route path="/admin/recipes" element={<RecipeManagementPage />} /><Route path="/login" element={<AuthPage />} /><Route path="/register" element={<AuthPage register />} /></Routes></Layout>; }
 
 createRoot(document.getElementById('root')).render(<StrictMode><BrowserRouter><AuthProvider><App /></AuthProvider></BrowserRouter></StrictMode>);

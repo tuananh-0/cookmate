@@ -42,6 +42,50 @@ export default swaggerJsdoc(options);
 
 /**
  * @openapi
+ * /api/v1/recipes/ingredients:
+ *   get:
+ *     summary: List ingredient names used by recipes
+ *     tags: [Recipes]
+ *     responses:
+ *       200: { description: Ingredient names available for matching. }
+ * /api/v1/recipes/match:
+ *   post:
+ *     summary: Find recipes using available ingredients
+ *     tags: [Recipes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [ingredients]
+ *             properties:
+ *               ingredients:
+ *                 type: array
+ *                 minItems: 1
+ *                 maxItems: 30
+ *                 items: { type: string }
+ *     responses:
+ *       200:
+ *         description: Recipes ranked by ingredient match, with matched and missing ingredients.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count: { type: integer }
+ *                 recipes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       recipe: { $ref: '#/components/schemas/Recipe' }
+ *                       matchedIngredients: { type: array, items: { $ref: '#/components/schemas/Ingredient' } }
+ *                       missingIngredients: { type: array, items: { $ref: '#/components/schemas/Ingredient' } }
+ *                       matchCount: { type: integer }
+ *                       totalIngredients: { type: integer }
+ *       400: { description: Invalid ingredient list. }
+ *
  * /api/v1/health:
  *   get:
  *     summary: Check API health
@@ -289,6 +333,28 @@ export default swaggerJsdoc(options);
  *     security: [{ bearerAuth: [] }]
  *     responses:
  *       200: { description: Current user's shopping items. }
+ *   post:
+ *     summary: Add missing ingredients to the current user's shopping list
+ *     tags: [Shopping List]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [items]
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 minItems: 1
+ *                 maxItems: 50
+ *                 items:
+ *                   $ref: '#/components/schemas/Ingredient'
+ *     responses:
+ *       201: { description: New items added; existing names are skipped. }
+ *       400: { description: Invalid item list. }
+ *       401: { description: Authentication required. }
  * /api/v1/shopping-list/generate:
  *   post:
  *     summary: Generate shopping list from meal plans

@@ -405,3 +405,26 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Project owner xác nhận PR #34 đã merge vào `develop`; merge commit `91a485e`. Đồng bộ local `develop` và đánh dấu hoàn thành các checklist recipe detail, recipe CRUD và loading/error/empty/session expiration. Việc trình bày V2 vẫn để sau khi rà xong các đầu việc V1 còn thiết yếu.
 - Project owner xác nhận đã hoàn tất chuẩn bị tài khoản demo và seed 100 công thức lên MongoDB Atlas; kiểm tra dữ liệu hiển thị trên website và test quyền admin thành công. Cập nhật checklist mục demo thành `[x]`.
 - Project owner xác nhận phần layout/navbar/responsive cơ bản, Login/Register/JWT/logout và Home/recipe list/card đã hoàn thành. Cập nhật các mục checklist tương ứng thành `[x]`; không phát sinh thay đổi code trong phiên này.
+
+### 2026-11-15 — Chốt thứ tự và tạo checklist tính năng V2
+
+- Project owner đồng ý thứ tự triển khai: (1) tìm công thức theo nguyên liệu sẵn có, (2) user gửi công thức và admin duyệt trước khi publish, (3) đánh giá 1–5 sao và xếp hạng công thức.
+- Thêm đầu việc và tiêu chí kiểm tra cho từng giai đoạn V2 vào `PROJECT_CHECKLIST.md`, gồm quyền truy cập, trạng thái duyệt, nguyên liệu thiếu, shopping list và chống thiên lệch xếp hạng do ít lượt đánh giá.
+- Chưa bắt đầu code V2; các mục giữ `[ ]`.
+
+### 2026-11-15 — V2.1 tìm công thức theo nguyên liệu — đang thực hiện
+
+- Tạo branch `feature/v2-ingredient-recipe-match` từ `develop` mới nhất tại `6c894f3`.
+- Chuyển V2.1 sang `[~]`; thống nhất so khớp tên nguyên liệu chính xác sau khi chuẩn hóa chữ hoa/thường và khoảng trắng, không fuzzy-match để tránh gợi ý sai nguyên liệu.
+- Phạm vi phiên này: API gợi ý nguyên liệu và tìm món, hiển thị phần khớp/còn thiếu, thêm nguyên liệu còn thiếu vào shopping list mà không tạo bản trùng; cập nhật Swagger và hướng dẫn tự kiểm thử.
+- Chưa commit/push. Sau kiểm tra nội bộ sẽ chờ project owner tự test trước khi commit/push.
+
+## 2026-11-15 — Cook with what you have (V2.1)
+
+- Continued implementation on `feature/v2-ingredient-recipe-match`, created from latest `develop` (`6c894f3`).
+- Added public API to list recipe ingredients and rank recipes by exact normalized ingredient-name matches, returning matched and missing ingredients.
+- Added authenticated shopping-list endpoint that adds missing ingredients while skipping normalized duplicates.
+- Added the `/ingredient-search` page with ingredient suggestions/manual entry, match details, loading/error states, and shopping-list integration for signed-in users.
+- Updated Swagger docs, including request/response shape for recipe matching; corrected a duplicate path entry.
+- Internal lint/build and runtime documentation checks are pending in this session. User manual testing is required before commit/push.
+- Internal verification passed: `npm.cmd run lint` and `npm.cmd run build` in `client/`; `npm.cmd run lint` in `server/`; OpenAPI document loads and includes all three new endpoints; `git diff --check` passed.
