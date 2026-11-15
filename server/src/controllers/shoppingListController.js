@@ -1,6 +1,7 @@
 import MealPlan from '../models/MealPlan.js';
 import ShoppingItem from '../models/ShoppingItem.js';
 import { normalizeIngredientName } from '../utils/ingredientUtils.js';
+import { publicRecipeFilter } from '../utils/recipeVisibility.js';
 
 export async function listShoppingItems(req, res) {
   const items = await ShoppingItem.find({ user: req.user._id }).sort({ checked: 1, name: 1 });
@@ -32,7 +33,7 @@ export async function addShoppingItems(req, res) {
 }
 
 export async function generateShoppingList(req, res) {
-  const mealPlans = await MealPlan.find({ user: req.user._id }).populate('recipe');
+  const mealPlans = await MealPlan.find({ user: req.user._id }).populate({ path: 'recipe', match: publicRecipeFilter });
   const ingredients = new Map();
 
   for (const mealPlan of mealPlans) {
