@@ -300,4 +300,16 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thêm biến `CORS_ORIGINS` vào ví dụ môi trường, Render Blueprint và hướng dẫn deploy; origin production dự kiến là `https://cookmate-fe.onrender.com`.
 - Kiểm tra nội bộ: `npm.cmd run lint` ở `server/`, `npm.cmd run build` ở `client/`, `git diff --check`; kiểm tra HTTP health với Origin được cho phép, Origin ngoài allowlist và request không có Origin. Tất cả đạt.
 - Project owner xác nhận local CORS/frontend test thành công. Checklist production CORS/env vẫn `[~]` đến khi thay đổi được merge và xác minh trên production.
-- Đủ điều kiện commit/push branch; sau merge sẽ cấu hình `CORS_ORIGINS` trên Render backend và kiểm tra production từ trình duyệt.
+- Commit `c4e370b` đã push; PR #24 đã merge vào `develop` tại `739c8bf`; đồng bộ local `develop` bằng fast-forward.
+- Ban đầu biến `CORS_ORIGINS` được thêm nhầm vào Static Site; sau đó project owner thêm đúng vào backend Render.
+- Production test trên `https://cookmate-fe.onrender.com/recipes` không còn lỗi tải và hiển thị empty state `No recipes found`; API trả `200` cùng `recipes: []`, xác nhận kết nối frontend/backend và CORS hoạt động. Database hiện chưa có recipe records.
+- Đánh dấu task CORS/environment production `[x]` trong checklist.
+
+### Public API base URL và kiểm tra endpoint production — đang thực hiện
+
+- Tạo branch `feature/public-api-production` từ `develop` tại `739c8bf`; giữ cập nhật checklist/work log ghi nhận task CORS đã hoàn thành.
+- Cập nhật OpenAPI để Swagger mặc định dùng production API, đồng thời giữ server localhost cho phát triển.
+- Công khai API base URL, Swagger UI, health check và recipe-list URL trong README/Postman; đặt `baseUrl` của Postman collection về production và ghi chú smoke checks an toàn.
+- Kiểm tra nội bộ: backend lint, frontend build, parse Postman JSON và kiểm tra OpenAPI production/local servers đều đạt. Không truy cập được URL Render từ môi trường terminal (Windows TLS trả `SEC_E_NO_CREDENTIALS`), nên live endpoints được project owner xác minh bằng Postman.
+- Project owner xác nhận production `GET /api/v1/health` và `GET /api/v1/recipes` đều trả `200`; recipes hiện rỗng hợp lệ. Swagger UI local hiển thị cả Production và Local development; gọi production trực tiếp từ Swagger local bị CORS như dự kiến, vì origin đó không thuộc production allowlist.
+- Đủ điều kiện commit/push. Checklist production API giữ `[~]` cho đến khi PR được merge.
