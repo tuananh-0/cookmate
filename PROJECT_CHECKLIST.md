@@ -80,6 +80,43 @@
 - Admin: thêm/sửa/xóa công thức; user chỉ xem và lưu yêu thích.
 - Không bắt buộc: pantry, trừ nguyên liệu theo số lượng, đánh giá/bình luận, upload ảnh và thông báo.
 
+## CookMate V2 — Kế hoạch tính năng
+
+Thực hiện theo thứ tự đã thống nhất. Mỗi tính năng dùng branch riêng từ `develop`; chỉ chuyển sang `[~]` khi bắt đầu task và `[x]` sau khi code, test, commit và PR đã merge.
+
+### V2.1 — Tìm công thức theo nguyên liệu có sẵn `[~]`
+
+- [x] Chốt cách chuẩn hóa và đối chiếu tên nguyên liệu cho MVP: so khớp tên chính xác sau khi chuẩn hóa chữ hoa/thường và khoảng trắng; không tự suy đoán nguyên liệu gần giống.
+- [ ] Làm API tìm công thức theo danh sách nguyên liệu người dùng cung cấp.
+- [ ] Trả về nguyên liệu đã có và nguyên liệu còn thiếu cho từng công thức.
+- [ ] Thêm giao diện nhập/chọn nguyên liệu và hiển thị kết quả phù hợp.
+- [ ] Cho phép thêm nguyên liệu còn thiếu vào shopping list.
+- [ ] Kiểm tra danh sách rỗng, nguyên liệu không khớp, công thức thiếu một phần và quyền truy cập shopping list.
+
+### V2.2 — Người dùng gửi công thức, admin duyệt
+
+- [ ] Bổ sung trạng thái công thức `pending`, `approved`, `rejected`.
+- [ ] Đặt công thức seed hiện tại và công thức do admin tạo ở trạng thái `approved`.
+- [ ] Cho user gửi công thức và xem trạng thái các công thức đã gửi.
+- [ ] Tạo hàng đợi duyệt cho admin với thao tác approve/reject.
+- [ ] Chỉ công khai công thức `approved` trong list, search và detail.
+- [ ] Yêu cầu duyệt lại khi nội dung công thức đã publish bị sửa.
+- [ ] Kiểm tra quyền sở hữu, quyền admin, trạng thái pending/rejected và tính riêng tư của công thức chưa duyệt.
+
+### V2.3 — Đánh giá sao và xếp hạng công thức
+
+- [ ] Tạo dữ liệu đánh giá 1–5 sao, tối đa một đánh giá cho mỗi user/công thức; cho phép sửa đánh giá.
+- [ ] Chỉ user đăng nhập được đánh giá công thức đã publish; không cho tác giả tự đánh giá công thức của mình.
+- [ ] Hiển thị điểm trung bình và số lượt đánh giá trên danh sách/chi tiết công thức.
+- [ ] Thêm sắp xếp theo đánh giá, tránh để công thức chỉ có một lượt đánh giá tự động đứng đầu.
+- [ ] Kiểm tra quyền, điểm hợp lệ, cập nhật/xóa đánh giá và công thức chưa duyệt.
+
+### V2 — Hoàn thiện trước khi phát hành
+
+- [ ] Cập nhật tài liệu API và README cho các tính năng V2.
+- [ ] Chạy lint/build và kiểm thử các luồng V2 trên môi trường production.
+- [ ] Chỉ phát hành V2 sau khi các tính năng trong phạm vi được test và merge.
+
 ## Nhật ký làm việc
 
 ### 2026-11-06 — Khởi tạo quy trình Git và bộ khung dự án

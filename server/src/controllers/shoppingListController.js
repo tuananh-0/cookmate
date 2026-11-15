@@ -1,9 +1,34 @@
 import MealPlan from '../models/MealPlan.js';
 import ShoppingItem from '../models/ShoppingItem.js';
+import { normalizeIngredientName } from '../utils/ingredientUtils.js';
 
 export async function listShoppingItems(req, res) {
   const items = await ShoppingItem.find({ user: req.user._id }).sort({ checked: 1, name: 1 });
   return res.json({ count: items.length, items });
+}
+
+export async function addShoppingItems(req, res) {
+  const { items } = req.body;
+  if (!Array.isArray(items) || items.length === 0 || items.length > 50
+    || items.some((item) => !item || typeof item.name !== 'string' || !item.name.trim()
+      || item.name.trim().length > 120 || typeof item.quantity !== 'string' || !item.quantity.trim()
+      || item.quantity.trim().length > 80)) {
+    return res.status(400).json({ message: 'Provide between 1 and 50 valid shopping items' });
+  }
+
+  const existingItems = await ShoppingItem.find({ user: req.user._id }).select('name');
+  const knownNames = new Set(existingItems.map((item) => normalizeIngredientName(item.name)));
+  const additions = [];
+  for (const item of items) {
+    const name = item.name.trim().replace(/\s+/g, ' ');
+    const key = normalizeIngredientName(name);
+    if (knownNames.has(key)) continue;
+    knownNames.add(key);
+    additions.push({ user: req.user._id, name, quantity: item.quantity.trim(), checked: false });
+  }
+
+  const createdItems = additions.length ? await ShoppingItem.insertMany(additions) : [];
+  return res.status(201).json({ count: createdItems.length, items: createdItems });
 }
 
 export async function generateShoppingList(req, res) {
