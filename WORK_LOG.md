@@ -355,4 +355,11 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thu hẹp các trường được phép cập nhật: meal plan chỉ nhận `date`, `mealType`, `note`, `recipeId`; shopping item chỉ nhận `checked`. Trường `user` và các trường không được hỗ trợ bị bỏ qua; request không có trường hợp lệ trả `400`.
 - Giữ truy vấn cập nhật ràng buộc theo cả `_id` và user hiện tại.
 - Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` và `git diff --check` đạt; rà soát diff xác nhận không còn truyền raw request body vào truy vấn cập nhật.
-- Chưa commit/push. Chờ project owner kiểm tra API với hai tài khoản trước.- Theo đề nghị project owner, tự chạy thêm kiểm tra tích hợp HTTP với MongoDB local trong database tạm `cookmate_ownership_test_codex`; xác nhận hai endpoint không đổi owner, user khác không xem được bản ghi, trường `checked` hợp lệ vẫn cập nhật, và PATCH chỉ có trường owner trả `400`. Database tạm đã được xóa sau kiểm tra; không tạo file test và không truy cập Atlas/production.
+- Chưa commit/push. Chờ project owner kiểm tra API với hai tài khoản trước.- Theo đề nghị project owner, tự chạy thêm kiểm tra tích hợp HTTP với MongoDB local trong database tạm `cookmate_ownership_test_codex`; xác nhận hai endpoint không đổi owner, user khác không xem được bản ghi, trường `checked` hợp lệ vẫn cập nhật, và PATCH chỉ có trường owner trả `400`. Database tạm đã được xóa sau kiểm tra; không tạo file test và không truy cập Atlas/production.- Project owner xác nhận PR đã merge. PR #29 merge vào `develop` tại `c091e8c`; đồng bộ local `develop` bằng fast-forward và chuyển mục kiểm tra phân quyền sang `[x]`.
+### 2026-11-15 — Giữ shopping list khi không có meal plan — chờ project owner test
+
+- Tiếp tục rà theo mức độ ảnh hưởng sau PR #29; chọn lỗi thao tác `Generate from meal plan` xóa toàn bộ shopping list khi không có meal plan/nguyên liệu để tạo danh sách mới.
+- Tạo branch `fix/shopping-list-empty-regeneration` từ `develop` mới nhất tại `c091e8c`.
+- Thêm kiểm tra trước khi xóa danh sách cũ; nếu không có nguyên liệu khả dụng, API trả `400` cùng hướng dẫn và giữ nguyên shopping list.
+- Kiểm tra nội bộ: server lint và `git diff --check` đạt; tích hợp HTTP với MongoDB local trong database tạm xác nhận POST trả `400`, mục shopping list và trạng thái checked còn nguyên. Database tạm đã được xóa.
+- Chưa commit/push; chờ project owner tự kiểm tra theo workflow.

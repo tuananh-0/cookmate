@@ -21,6 +21,10 @@ export async function generateShoppingList(req, res) {
     }
   }
 
+  if (ingredients.size === 0) {
+    return res.status(400).json({ message: 'Add a meal plan with available recipes before generating a shopping list' });
+  }
+
   await ShoppingItem.deleteMany({ user: req.user._id });
   const items = await ShoppingItem.insertMany(
     [...ingredients.values()].map((item) => ({ ...item, user: req.user._id })),
