@@ -333,3 +333,11 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Postman `GET /api/v1/recipes` trả 10 bản ghi: 8 công thức seed và 2 công thức đã có sẵn; không có bản sao do seed.
 - Chỉ chạy trên MongoDB local; không seed vào Atlas hay production.
 - Kiểm tra nội bộ: server lint, cú pháp Node.js và `git diff --check` đều đạt.
+
+### 2026-11-15 — Mở rộng dữ liệu demo lên 100 công thức — đã tự kiểm tra
+
+- Theo yêu cầu project owner, mở rộng bộ seed từ 8 lên đúng 100 công thức duy nhất, gồm món Việt và một số nhóm món quốc tế, món chay, bữa sáng, tráng miệng và đồ uống.
+- Cập nhật checklist từ 8–12 thành 100 công thức; vẫn giữ `[~]` cho tới khi thay đổi được kiểm tra, commit và merge.
+- Kiểm tra nội bộ: module xuất đúng 100 mục, 100 tiêu đề duy nhất, mọi mục có category/description/ingredients/instructions; Node syntax check, server lint và `git diff --check` đạt.
+- Project owner xác nhận seed 100 công thức và kiểm tra thành công qua Postman trên MongoDB local.
+- Thay đổi đang được chuẩn bị commit/push trên branch `feature/demo-recipe-data`; checklist vẫn `[~]` cho đến khi PR được merge.
