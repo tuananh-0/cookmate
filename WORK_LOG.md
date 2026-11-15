@@ -349,3 +349,10 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thêm error middleware trả `400` cho Mongoose CastError/ValidationError, `500` với thông báo chung cho lỗi ngoài dự kiến; không gửi stack trace hay thông tin validation nhạy cảm cho client.
 - Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` đạt; request HTTP cô lập `GET /api/v1/recipes/not-an-object-id` trả `400`, tiếp theo `GET /api/v1/health` vẫn trả `200`; `git diff --check` đạt.
 - Chưa commit/push. Chờ project owner chạy kiểm tra thủ công trước khi cho phép commit/push.
+### 2026-11-15 — Bảo vệ quyền sở hữu meal plan và shopping item — chờ project owner test
+
+- Đồng bộ `develop` tại `f03fdaa`, sau khi PR backend error handler được merge; tạo branch `fix/user-owned-resource-updates`.
+- Thu hẹp các trường được phép cập nhật: meal plan chỉ nhận `date`, `mealType`, `note`, `recipeId`; shopping item chỉ nhận `checked`. Trường `user` và các trường không được hỗ trợ bị bỏ qua; request không có trường hợp lệ trả `400`.
+- Giữ truy vấn cập nhật ràng buộc theo cả `_id` và user hiện tại.
+- Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` và `git diff --check` đạt; rà soát diff xác nhận không còn truyền raw request body vào truy vấn cập nhật.
+- Chưa commit/push. Chờ project owner kiểm tra API với hai tài khoản trước.- Theo đề nghị project owner, tự chạy thêm kiểm tra tích hợp HTTP với MongoDB local trong database tạm `cookmate_ownership_test_codex`; xác nhận hai endpoint không đổi owner, user khác không xem được bản ghi, trường `checked` hợp lệ vẫn cập nhật, và PATCH chỉ có trường owner trả `400`. Database tạm đã được xóa sau kiểm tra; không tạo file test và không truy cập Atlas/production.

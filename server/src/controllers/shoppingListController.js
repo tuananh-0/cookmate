@@ -29,9 +29,16 @@ export async function generateShoppingList(req, res) {
 }
 
 export async function updateShoppingItem(req, res) {
+  const updates = {};
+  if (Object.hasOwn(req.body, 'checked')) updates.checked = req.body.checked;
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ message: 'No valid fields to update' });
+  }
+
   const item = await ShoppingItem.findOneAndUpdate(
     { _id: req.params.id, user: req.user._id },
-    { $set: req.body },
+    { $set: updates },
     { new: true, runValidators: true },
   );
   if (!item) return res.status(404).json({ message: 'Shopping item not found' });
