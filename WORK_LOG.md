@@ -376,9 +376,19 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Chưa commit/push; chờ project owner test.
 - Project owner xác nhận PR #31 đã merge vào `develop` tại `190b7b9`; đồng bộ local `develop` bằng fast-forward. Mục error handler và shopping list được chuyển sang `[x]` trong checklist.
 
-### 2026-11-15 — Không trả email creator từ recipe detail công khai — chờ project owner test
+### 2026-11-15 — Không trả email creator từ recipe detail công khai — đã merge
 
 - Đồng bộ `develop` sau PR #31 tại `190b7b9` và tạo branch `fix/remove-public-creator-email`.
 - `GET /api/v1/recipes/:id` trước đó populate cả `name` và `email` của creator. Giao diện không dùng email; giới hạn projection về `name` để không lộ email qua endpoint public.
 - Kiểm tra nội bộ: server lint và `git diff --check` đạt; kiểm tra HTTP với DB local tạm xác nhận detail trả `200`, giữ creator name và không chứa email. Database thử nghiệm đã được xóa.
-- Chưa commit/push; chờ project owner test theo workflow.
+- Project owner xác nhận đã test thành công và PR #32 đã merge. Commit PR: `50da890` (`fix(api): hide creator email in public recipe details`); merge commit trên `develop`: `e0829c7`.
+- Đồng bộ local `develop` bằng fast-forward tới `origin/develop`; thêm mục bảo vệ email creator vào checklist và đánh dấu `[x]` sau khi code, test và PR đều đã hoàn tất.
+
+### 2026-11-15 — Rà soát kiểm thử và chất lượng V1 — đã test, chờ merge
+
+- Tạo branch `feature/v1-quality-verification` từ `develop` mới nhất (`e0829c7`), giữ lại cập nhật checklist/work log của PR #32.
+- `npm.cmd run lint` trong `client/`, `npm.cmd run build` trong `client/` và `npm.cmd run lint` trong `server/` đều đạt.
+- Chạy smoke/integration check bằng API local với MongoDB database tạm riêng, sau đó xóa database: health; register/login/current user; từ chối password yếu; quyền admin/user; tìm kiếm theo title/ingredient và lọc category; recipe detail không trả creator email; favorites không trùng và tách theo user; meal plan, duplicate slot, ownership và cập nhật; shopping list generate, checked preservation và tách theo user; CORS cho origin allowlist. Tất cả kiểm tra đều đạt.
+- Chạy Vite preview và gọi trực tiếp `/`, `/recipes`, `/recipes/:id`, `/meal-planner`, `/shopping-list`, `/admin/recipes`; đều trả `200`, asset JS/CSS cũng trả `200`.
+- Project owner xác nhận đã tự kiểm tra giao diện thành công, gồm các luồng chính trên production. Request HTTP trực tiếp tới production từ workspace vẫn bị đóng kết nối nên phần smoke test production được xác nhận qua trình duyệt của project owner.
+- Không phát hiện lỗi chức năng/console cần sửa trong phạm vi kiểm tra; không thêm thay đổi code chức năng. Checklist giữ `[~]` cho đến khi thay đổi nhật ký/checklist được commit và PR merge.

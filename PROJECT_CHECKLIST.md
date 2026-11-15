@@ -51,10 +51,11 @@
 
 - [~] Làm meal planner page
 - [x] Làm shopping list page
-- [ ] Kết nối toàn bộ API với frontend
+- [~] Kết nối toàn bộ API với frontend
 - [~] Xử lý loading, error, empty state và token hết hạn
 - [~] Kiểm tra phân quyền và các nghiệp vụ chính
-- [ ] Chạy build, lint và sửa console error
+- [x] Không trả email creator trong recipe detail công khai
+- [~] Chạy build, lint và rà console error
 
 ## Ngày 7 — Deploy và thuyết trình
 
