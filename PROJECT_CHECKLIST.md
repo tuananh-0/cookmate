@@ -12,7 +12,7 @@
 ## Ngày 2 — Backend nền tảng
 
 - [ ] Khởi tạo Express và kết nối MongoDB
-- [ ] Cấu hình CORS, JSON parser và error handler
+- [~] Cấu hình CORS, JSON parser và error handler
 - [ ] Tạo health check API
 - [x] Tạo model User
 - [x] Làm register, login và JWT

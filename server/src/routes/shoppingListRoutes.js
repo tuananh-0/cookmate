@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { deleteShoppingItem, generateShoppingList, listShoppingItems, updateShoppingItem } from '../controllers/shoppingListController.js';
 import { requireAuth } from '../middleware/authMiddleware.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = Router();
 
 router.use(requireAuth);
-router.get('/', listShoppingItems);
-router.post('/generate', generateShoppingList);
-router.patch('/:id', updateShoppingItem);
-router.delete('/:id', deleteShoppingItem);
+router.get('/', asyncHandler(listShoppingItems));
+router.post('/generate', asyncHandler(generateShoppingList));
+router.patch('/:id', asyncHandler(updateShoppingItem));
+router.delete('/:id', asyncHandler(deleteShoppingItem));
 
 export default router;
