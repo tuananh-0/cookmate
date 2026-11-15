@@ -355,7 +355,8 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Thu hẹp các trường được phép cập nhật: meal plan chỉ nhận `date`, `mealType`, `note`, `recipeId`; shopping item chỉ nhận `checked`. Trường `user` và các trường không được hỗ trợ bị bỏ qua; request không có trường hợp lệ trả `400`.
 - Giữ truy vấn cập nhật ràng buộc theo cả `_id` và user hiện tại.
 - Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` và `git diff --check` đạt; rà soát diff xác nhận không còn truyền raw request body vào truy vấn cập nhật.
-- Chưa commit/push. Chờ project owner kiểm tra API với hai tài khoản trước.- Theo đề nghị project owner, tự chạy thêm kiểm tra tích hợp HTTP với MongoDB local trong database tạm `cookmate_ownership_test_codex`; xác nhận hai endpoint không đổi owner, user khác không xem được bản ghi, trường `checked` hợp lệ vẫn cập nhật, và PATCH chỉ có trường owner trả `400`. Database tạm đã được xóa sau kiểm tra; không tạo file test và không truy cập Atlas/production.
+- Chưa commit/push. Chờ project owner kiểm tra API với hai tài khoản trước.
+- Theo đề nghị project owner, tự chạy thêm kiểm tra tích hợp HTTP với MongoDB local trong database tạm `cookmate_ownership_test_codex`; xác nhận hai endpoint không đổi owner, user khác không xem được bản ghi, trường `checked` hợp lệ vẫn cập nhật, và PATCH chỉ có trường owner trả `400`. Database tạm đã được xóa sau kiểm tra; không tạo file test và không truy cập Atlas/production.
 - Project owner xác nhận PR đã merge. PR #29 merge vào `develop` tại `c091e8c`; đồng bộ local `develop` bằng fast-forward và chuyển mục kiểm tra phân quyền sang `[x]`.
 ### 2026-11-15 — Giữ shopping list khi không có meal plan — chờ project owner test
 
@@ -366,10 +367,18 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Chưa commit/push; chờ project owner tự kiểm tra theo workflow.
 - Project owner xác nhận PR đã merge. PR #30 merge vào `develop` tại `be006cf`; đồng bộ local `develop` bằng fast-forward.
 
-### 2026-11-15 — Giữ trạng thái checked khi tạo lại shopping list — chờ project owner test
+### 2026-11-15 — Giữ trạng thái checked khi tạo lại shopping list — đã merge
 
 - PR #30 đã merge vào `develop` tại `be006cf`; đồng bộ local `develop` bằng fast-forward.
 - Tạo branch `fix/shopping-list-checked-preservation` từ `develop`.
 - Khi tạo lại danh sách từ meal plan, giữ `checked` cho nguyên liệu đã tồn tại theo tên không phân biệt hoa/thường; nguyên liệu mới mặc định chưa checked. Các nguyên liệu không còn trong meal plan vẫn bị loại khỏi danh sách như trước.
 - Kiểm tra nội bộ: server lint và `git diff --check` đạt; kiểm tra tích hợp HTTP/MongoDB local xác nhận giữ checked qua hai lần generate, item mới unchecked và item cũ không còn trong kế hoạch bị loại. Database tạm đã được xóa.
 - Chưa commit/push; chờ project owner test.
+- Project owner xác nhận PR #31 đã merge vào `develop` tại `190b7b9`; đồng bộ local `develop` bằng fast-forward. Mục error handler và shopping list được chuyển sang `[x]` trong checklist.
+
+### 2026-11-15 — Không trả email creator từ recipe detail công khai — chờ project owner test
+
+- Đồng bộ `develop` sau PR #31 tại `190b7b9` và tạo branch `fix/remove-public-creator-email`.
+- `GET /api/v1/recipes/:id` trước đó populate cả `name` và `email` của creator. Giao diện không dùng email; giới hạn projection về `name` để không lộ email qua endpoint public.
+- Kiểm tra nội bộ: server lint và `git diff --check` đạt; kiểm tra HTTP với DB local tạm xác nhận detail trả `200`, giữ creator name và không chứa email. Database thử nghiệm đã được xóa.
+- Chưa commit/push; chờ project owner test theo workflow.

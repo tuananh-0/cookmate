@@ -19,7 +19,7 @@ export async function listRecipes(req, res) {
 }
 
 export async function getRecipe(req, res) {
-  const recipe = await Recipe.findById(req.params.id).populate('createdBy', 'name email');
+  const recipe = await Recipe.findById(req.params.id).populate('createdBy', 'name');
   if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
   return res.json({ recipe });
 }
