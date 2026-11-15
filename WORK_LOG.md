@@ -312,4 +312,13 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Công khai API base URL, Swagger UI, health check và recipe-list URL trong README/Postman; đặt `baseUrl` của Postman collection về production và ghi chú smoke checks an toàn.
 - Kiểm tra nội bộ: backend lint, frontend build, parse Postman JSON và kiểm tra OpenAPI production/local servers đều đạt. Không truy cập được URL Render từ môi trường terminal (Windows TLS trả `SEC_E_NO_CREDENTIALS`), nên live endpoints được project owner xác minh bằng Postman.
 - Project owner xác nhận production `GET /api/v1/health` và `GET /api/v1/recipes` đều trả `200`; recipes hiện rỗng hợp lệ. Swagger UI local hiển thị cả Production và Local development; gọi production trực tiếp từ Swagger local bị CORS như dự kiến, vì origin đó không thuộc production allowlist.
-- Đủ điều kiện commit/push. Checklist production API giữ `[~]` cho đến khi PR được merge.
+- Commit `328b25a` đã push; PR #25 đã merge vào `develop` tại `e283fcb`; đồng bộ local `develop` bằng fast-forward.
+- Đánh dấu task public API base URL/production endpoints `[x]` trong checklist.
+
+### Hoàn thiện README và link live — đang thực hiện
+
+- Tạo branch `feature/readme-live-links` từ `develop` tại `e283fcb`; giữ cập nhật checklist/work log đã ghi nhận PR #25.
+- Viết lại README tiếng Việt với mô tả MVP, công nghệ, link app/API/Swagger/endpoints, hướng dẫn cài đặt local trên PowerShell, cấu hình `.env`, Postman và cấu trúc repo.
+- Kiểm tra nội bộ: `git diff --check` đạt và các đường dẫn tương đối trong README đều trỏ tới file có thật.
+- Project owner xác nhận các link README/live hoạt động ổn.
+- Đủ điều kiện commit/push. Checklist README vẫn `[~]` cho đến khi PR được merge.
