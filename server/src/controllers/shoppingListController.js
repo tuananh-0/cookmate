@@ -25,9 +25,18 @@ export async function generateShoppingList(req, res) {
     return res.status(400).json({ message: 'Add a meal plan with available recipes before generating a shopping list' });
   }
 
+  const existingItems = await ShoppingItem.find({ user: req.user._id });
+  const checkedByName = new Map(
+    existingItems.map((item) => [item.name.trim().toLowerCase(), item.checked]),
+  );
+
   await ShoppingItem.deleteMany({ user: req.user._id });
   const items = await ShoppingItem.insertMany(
-    [...ingredients.values()].map((item) => ({ ...item, user: req.user._id })),
+    [...ingredients.entries()].map(([key, item]) => ({
+      ...item,
+      checked: checkedByName.get(key) || false,
+      user: req.user._id,
+    })),
   );
   return res.status(201).json({ count: items.length, items });
 }
