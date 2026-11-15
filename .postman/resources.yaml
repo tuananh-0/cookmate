@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: fb8a7b8a-30ca-464c-8e86-5278467f6fef
+
+cloudResources:
+  collections:
+    ../postman/collections/CookMate API: fdad3261-d83f-424c-82fb-99262e6fe261
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+#localResources:
+#  collections:
+#    - ../tests/E2E Test Collection/

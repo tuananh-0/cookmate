@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/recipes"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "Example recipe",
+      "description": "A short description",
+      "category": "Vietnamese",
+      "ingredients": [{ "name": "Rice noodles", "quantity": "200g" }],
+      "instructions": ["Prepare ingredients", "Cook and serve"],
+      "prepTime": 10,
+      "cookTime": 20,
+      "servings": 2
+    }
+order: 3000

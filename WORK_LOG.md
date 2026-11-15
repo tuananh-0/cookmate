@@ -1,0 +1,407 @@
+# CookMate — Work Log
+
+File này ghi lại các phiên làm việc, thay đổi đã thực hiện và kết quả kiểm thử.
+
+## 2026-11-06
+
+### Khởi tạo project
+
+- Tạo repository GitHub public `tuananh-0/cookmate`.
+- Tạo bộ khung React/Vite trong `client/` và Express trong `server/`.
+- Thêm API health check tại `GET /api/v1/health`.
+- Kết nối backend với MongoDB local database `cookmate`.
+- Kiểm tra frontend build và backend kết nối MongoDB thành công.
+
+### Authentication
+
+- Tạo model `User` với role `user/admin`.
+- Mã hóa password bằng `bcryptjs`.
+- Thêm register, login và JWT.
+- Đã kiểm tra đăng ký thực tế với MongoDB local và xóa dữ liệu test.
+- Đã commit/push branch `feature/user-auth`.
+
+### JWT middleware — chờ Pull Request review
+
+- Tạo `requireAuth` để kiểm tra Bearer token và user tồn tại.
+- Tạo `requireRole` cho các route cần phân quyền.
+- Thêm protected endpoint `GET /api/v1/auth/me`.
+- Test token hợp lệ thành công: route trả về user hiện tại.
+- Test request không có token thành công: route trả về `401`.
+- Đã xóa dữ liệu test sau khi kiểm tra.
+- Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
+
+### Lint và production build — chờ Pull Request review
+
+- Đồng bộ `develop` sau khi frontend business checks được merge.
+- Tạo branch `feature/project-lint-build`.
+- Thêm ESLint flat config và `lint` scripts cho client/server.
+- Sửa effect trong Recipe Detail, Meal Planner, Shopping List và Admin Management để tránh cập nhật state đồng bộ trong effect và tránh update sau unmount.
+- Frontend lint, backend lint và frontend production build đều chạy thành công.
+- Project owner đã xác nhận lint/build và kiểm tra thủ công frontend thành công.
+- Đủ điều kiện commit/push; chờ Pull Request review.
+
+### Postman API documentation — đang chờ tự kiểm tra
+
+- Đồng bộ `develop` sau khi lint/build PR được merge.
+- Tạo branch `feature/public-api-docs`.
+- Thêm Postman Collection v2.1 JSON cho health, authentication, recipes, favorites, meal plans và shopping list.
+- Local Mode cảnh báo rằng collection JSON trong workspace không được tự nạp; thêm hướng dẫn import thủ công vào `postman/README.md`.
+- Đã xác nhận collection JSON parse hợp lệ.
+- Chưa commit/push; chờ project owner import và thử các request trong Postman.
+- Theo yêu cầu project owner, bổ sung API annotations theo cấu trúc `@api {METHOD} /route` vào `docs/api.apidoc.js`.
+
+### Swagger API documentation — đang chờ tự kiểm tra
+
+- Theo yêu cầu project owner, thêm OpenAPI 3 spec cho API và Swagger UI tại `/api-docs`.
+- Bao gồm authentication, recipes, favorites, meal plans và shopping list.
+- Chưa commit/push; chờ project owner mở Swagger UI và kiểm tra endpoint hiển thị.
+
+### Bắt đầu Recipe API
+
+- Đã đồng bộ `develop` sau khi PR `feature/auth-middleware` được merge.
+- Tạo branch `feature/recipe-api` từ `develop` mới nhất.
+- Bắt đầu model Recipe, Favorite và các API CRUD theo checklist.
+
+### Recipe CRUD — chờ Pull Request review
+
+- Tạo model `Recipe` với ingredients, instructions, category, thời gian và servings.
+- Thêm public API list/detail tại `/api/v1/recipes`.
+- Thêm tìm kiếm theo text và lọc theo category.
+- Thêm create/update/delete cho admin với JWT và role middleware.
+- Test tạo recipe, tìm kiếm và xem chi tiết thành công.
+- Đã xóa user admin và recipe test sau khi kiểm tra.
+- Favorite chưa làm; sẽ tách thành task tiếp theo.
+
+### Sửa lỗi validation đăng ký
+
+- Phát hiện request password ngắn hơn 6 ký tự làm server crash do lỗi validation chưa được phản hồi.
+- Thêm kiểm tra password trong controller để trả về `400 Bad Request`.
+- Cần test lại với password ngắn và password hợp lệ trước khi tạo PR Recipe API.
+
+### Xác nhận test Postman
+
+- Đã test các API hiện có bằng Postman.
+- Authentication, protected route và Recipe API đều hoạt động đúng.
+- Recipe API đã sẵn sàng để tạo Pull Request vào `develop`.
+
+### Recipe API hoàn thành và bắt đầu Favorites
+
+- PR Recipe API đã được merge vào `develop`.
+- Cập nhật checklist: Recipe CRUD, search/filter, role protection và Postman test thành `[x]`.
+- Đồng bộ `develop` mới nhất.
+- Tạo branch `feature/favorites`.
+- Bắt đầu model Favorite và các API lưu/bỏ lưu công thức.
+
+### Favorite API — chờ Pull Request review
+
+- Tạo model `Favorite` với unique index theo cặp user/recipe.
+- Thêm `GET /api/v1/favorites` để lấy danh sách yêu thích của user hiện tại.
+- Thêm `POST /api/v1/favorites/:recipeId` để lưu công thức.
+- Thêm `DELETE /api/v1/favorites/:recipeId` để bỏ lưu công thức.
+- Test thêm, xem danh sách, bỏ yêu thích và duplicate request bằng API.
+- Duplicate favorite trả về `409`; dữ liệu test đã được xóa.
+
+### Recipe seed data — đang kiểm thử
+
+- Thêm 8 công thức mẫu thuộc nhiều category.
+- Thêm lệnh `npm run seed:recipes`.
+- Seed dùng upsert theo title nên có thể chạy lại mà không tạo bản ghi trùng.
+- Đã chạy seed thành công hai lần với MongoDB local; mỗi lần báo `Seeded 8 recipes`.
+- Kiểm tra khả năng chạy lặp mà không phát sinh lỗi duplicate.
+
+### Meal Plan API — đang kiểm thử
+
+- Tạo model `MealPlan` theo user, ngày và buổi ăn.
+- Thêm API list/create/update/delete meal plan.
+- Thêm populate recipe và lọc theo khoảng ngày.
+- Ngăn trùng cùng user, ngày và meal type.
+- Test tạo meal plan, lọc theo ngày và duplicate slot thành công.
+- Duplicate slot trả về `409`; dữ liệu test đã được xóa.
+
+### Shopping List API — đang kiểm thử
+
+- Tạo shopping list từ ingredients của các recipe trong meal plan.
+- Gộp nguyên liệu trùng theo tên, cộng chuỗi quantity.
+- Thêm API xem, generate, cập nhật checked và xóa shopping item.
+- Test generate từ meal plan, lấy danh sách và cập nhật `checked` thành công.
+- Test với 2 meal plan tạo ra 3 shopping items sau khi gộp nguyên liệu.
+- Đã xóa user, meal plan và shopping items test.
+- Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
+
+### Frontend shell — đang kiểm thử
+
+- Đồng bộ `develop` sau khi Shopping List PR được merge.
+- Tạo branch `feature/frontend-shell`.
+- Thêm React Router, Axios API client và layout responsive.
+- Thêm các màn hình khung Home, Recipes, Login và Register.
+- Đang kiểm tra production build và điều hướng giữa các màn hình.
+
+### Frontend authentication — đang chờ tự test
+
+- Tạo `AuthContext` để lưu user và JWT trong localStorage.
+- Kết nối form Login/Register với API backend bằng Axios.
+- Thêm loading state và hiển thị lỗi từ API.
+- Project owner đã test thành công đăng ký, đăng nhập, localStorage và trường hợp lỗi.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend Meal Planner — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Favorite frontend được merge.
+- Tạo branch `feature/frontend-meal-planner`.
+- Thêm route `/meal-planner`.
+- Kết nối danh sách, thêm và xóa meal plan.
+- Thêm trạng thái chưa đăng nhập, loading, empty và error.
+- Project owner đã xác nhận Frontend Meal Planner test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend recipe list — đang chờ tự test
+
+- Đồng bộ `develop` sau khi frontend authentication được merge.
+- Tạo branch `feature/frontend-recipes`.
+- Kết nối trang Recipes với `GET /api/v1/recipes`.
+- Thêm recipe cards, tìm kiếm và lọc category.
+- Chưa commit/push; chờ test thủ công từ project owner.
+
+### Điều chỉnh password và recipe search — đã tự test
+
+- Tăng password registration lên tối thiểu 8 ký tự, bắt buộc chữ hoa, chữ thường và số.
+- Cập nhật frontend validation và thông báo hướng dẫn password.
+- Đổi recipe search sang regex không phân biệt hoa thường trên title, description, category và ingredient.
+- Thêm gợi ý recipe khi người dùng nhập từ khóa từ ký tự đầu tiên.
+- Project owner đã xác nhận password policy và frontend recipe list/search test thành công.
+
+### Điều chỉnh autocomplete search
+
+- Giữ danh sách search trên title, description, category và ingredients.
+- Giới hạn autocomplete chỉ theo title để tránh đề xuất `Gà teriyaki` khi `ph` chỉ khớp với từ `phủ` trong description.
+- Autocomplete test cũng đã được xác nhận thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+- Cần tạo Pull Request và review trước khi đánh dấu hoàn thành trong checklist.
+### Frontend Recipe Detail — đang chờ tự test
+
+- Đồng bộ `develop` sau khi frontend recipe list được merge.
+- Tạo branch `feature/frontend-recipe-detail`.
+- Thêm route `/recipes/:id` và kết nối `GET /api/v1/recipes/:id`.
+- Hiển thị ingredients, instructions, thời gian và servings.
+- Thêm link từ recipe card sang trang chi tiết và link quay lại.
+- Project owner đã xác nhận Recipe Detail test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend Favorites — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Recipe Detail PR được merge.
+- Tạo branch `feature/frontend-favorites`.
+- Thêm Favorite button trên Recipe Detail.
+- Kết nối GET/POST/DELETE với Favorite API bằng JWT.
+- Hiển thị trạng thái saved và lỗi khi chưa đăng nhập.
+- Chưa commit/push; chờ project owner tự test.
+
+### Frontend session/error handling — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Recipe Management PR được merge.
+- Tạo branch `feature/frontend-session-errors`.
+- Axios tự động gắn JWT vào request.
+- API `401` tự xóa session và chuyển về `/login?expired=1`.
+- Hiển thị thông báo session hết hạn trên trang Login.
+- Project owner đã xác nhận Frontend session error test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend API integration review — đang chờ tự test
+
+- Đồng bộ `develop` sau khi session/error handling được merge.
+- Tạo branch `feature/frontend-business-checks`.
+- Dùng Axios interceptor tập trung để gắn JWT, bỏ header auth lặp ở các page.
+- Cải thiện lỗi tải/cập nhật và reset lỗi cũ trong Meal Planner, Shopping List, Recipe Detail.
+- Làm an toàn việc đọc user JSON lưu trong localStorage.
+- Build frontend thành công; project owner đã xác nhận tự kiểm tra các luồng nghiệp vụ thành công.
+- Đủ điều kiện commit/push; chờ Pull Request review.
+
+### Cải thiện label Recipe Management — đang chờ tự test
+
+- Thêm label rõ ràng cho `Prep time (minutes)`, `Cook time (minutes)` và `Servings`.
+- Thêm placeholder minh họa giá trị cần nhập.
+- Project owner đã xác nhận Recipe Management labels test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Frontend Recipe Management — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Shopping List frontend được merge.
+- Tạo branch `feature/frontend-recipe-management`.
+- Thêm trang `/admin/recipes` cho admin create/edit/delete recipe.
+- Thêm form nhập ingredients theo dòng `name|quantity` và instructions theo dòng.
+- Chưa commit/push; chờ project owner tự test.
+
+### Frontend Shopping List — đang chờ tự test
+
+- Đồng bộ `develop` sau khi Meal Planner frontend được merge.
+- Tạo branch `feature/frontend-shopping-list`.
+- Thêm route `/shopping-list`.
+- Kết nối generate, list, checked toggle và delete với Shopping List API.
+- Project owner đã xác nhận Frontend Shopping List test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Phân biệt giao diện đăng nhập — đang chờ tự test
+
+- Cập nhật navbar theo auth state từ `AuthContext`.
+- Chưa đăng nhập: hiển thị `Log in` và `Get started`.
+- Đã đăng nhập: hiển thị tên user và `Log out`.
+- Project owner đã xác nhận Auth UI state test thành công.
+- Đủ điều kiện commit và push; chờ Pull Request review.
+
+### Public API documentation — đã merge vào develop
+
+- Hoàn thiện tài liệu OpenAPI/Swagger và giao diện Swagger UI tại `/api-docs`; bổ sung collection Postman.
+- Project owner đã xác nhận kiểm tra tài liệu API thành công.
+- PR #20 đã được merge vào `develop` (`d0802cc`); đánh dấu task hoàn thành trong checklist.
+- `develop` local hiện đã trỏ tới commit merge này. `git fetch` lần này không cập nhật được `FETCH_HEAD` do quyền truy cập, nhưng branch tracking và lịch sử commit xác nhận merge đã có trên `origin/develop`.
+- Task kế tiếp theo checklist: triển khai MongoDB Atlas; cần cấu hình tài khoản/cluster và biến môi trường production trước.
+
+### MongoDB Atlas — đã merge vào develop
+
+- Tạo branch `feature/mongodb-atlas` từ `develop` local ở commit `d0802cc`.
+- Thêm `docs/deployment.md` với hướng dẫn tạo database user, giới hạn IP access, cấu hình `MONGO_URI` riêng tư, chạy API và kiểm tra kết nối.
+- Thêm liên kết hướng dẫn Atlas vào README và chuyển checklist Atlas sang `[~]`.
+- Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` thành công; `git diff --check` không phát hiện whitespace error. Không chạy được lệnh `npm` trực tiếp trong PowerShell do execution policy, đã dùng `npm.cmd`.
+- Project owner đã cấu hình Atlas trong `server/.env`; xác nhận URI dùng `mongodb+srv://`, API log `MongoDB connected`, và Postman trả `200 OK` cho health cùng recipes.
+- Recipes trả danh sách rỗng (`count: 0`) nhưng endpoint hoạt động bình thường; chưa có dữ liệu công thức trong Atlas.
+- PR #21 đã được merge vào `develop` tại `4fdcf65`; đồng bộ local `develop` bằng fast-forward và đánh dấu Atlas `[x]`.
+- Task tiếp theo trong checklist: deploy backend; project owner đã chọn Render.
+
+### Deploy backend trên Render — đã merge và production test thành công
+
+- Tạo branch `feature/render-backend` từ `develop` đã đồng bộ tại `4fdcf65`.
+- Thêm Blueprint `render.yaml` cho Node.js service: thư mục `server`, cài dependency bằng `npm ci`, chạy `npm start`, health check `/api/v1/health`, region Virginia (khớp service thực tế) và cấu hình secrets qua Render.
+- Cập nhật server để bind vào `0.0.0.0` và dùng `PORT` do hosting cấp.
+- Thêm hướng dẫn triển khai Render vào `docs/deployment.md`; đánh dấu backend `[~]`.
+- Ghi rõ cách lấy outbound IP ranges của Render service region và thêm chúng vào Atlas IP Access List để service có thể kết nối database.
+- Kiểm tra nội bộ: `npm.cmd run lint`, `node --check src/server.js`, kiểm tra cú pháp/cấu hình YAML bằng `js-yaml`, `git diff --check` đều đạt; xác nhận `server/.env` vẫn bị Git ignore.
+- Project owner xác nhận kiểm tra local thành công sau khi server bind `0.0.0.0` và dùng `PORT`.
+- PR #22 đã được merge vào `develop` tại `7c9a226`; đồng bộ local `develop` bằng fast-forward.
+- Backend đã deploy trên Render tại `https://cookmate-j4o2.onrender.com`; cấu hình Atlas IP Access List với outbound IP ranges của Render để kết nối database.
+- Project owner xác nhận production API test thành công; đánh dấu backend `[x]` trong checklist.
+- Task tiếp theo trong checklist: cấu hình CORS và environment variables production.
+
+### Deploy frontend trên Render — đã merge và production test thành công
+
+- Tạo branch `feature/deploy-frontend` từ `develop` tại `7c9a226`.
+- Thêm Static Site `cookmate-web` vào Render Blueprint: build từ `client/`, chạy `npm ci && npm run build`, publish `dist/`.
+- Đặt `VITE_API_URL` trỏ tới API production và thêm SPA rewrite về `/index.html` cho các route React Router.
+- Kiểm tra nội bộ: `npm.cmd run lint` và `npm.cmd run build` trong `client/` thành công; kiểm tra YAML Blueprint và API URL thành công; `git diff --check` đạt.
+- Project owner xác nhận frontend preview test thành công trên trình duyệt.
+- Commit `6ac7ff2` đã push; PR #23 đã merge vào `develop` tại `b379415`; đồng bộ local `develop` bằng fast-forward.
+- Static Site ban đầu `cookmate-1` báo `404` với header `x-render-routing: no-server` dù cấu hình publish đúng; đã tạo Static Site mới `cookmate-fe` để kiểm tra và giữ nguyên service cũ trong lúc xác minh.
+- `cookmate-fe` deploy thành công tại `https://cookmate-fe.onrender.com`; project owner xác nhận production test thành công.
+- Đánh dấu task Deploy frontend `[x]` trong checklist. Deploy này chạy từ `develop` tại commit `b379415` đã merge; không phát sinh commit code mới.
+
+### Cấu hình CORS và environment variables production — đang triển khai
+
+- Tạo branch `feature/production-cors` từ `develop` tại `b379415`; giữ các cập nhật checklist/work log frontend đã xác nhận.
+- Thay CORS mở toàn bộ bằng allowlist `CORS_ORIGINS`; mặc định chỉ cho phép các origin localhost khi phát triển. Request không có Origin (Postman/health check) vẫn hoạt động.
+- Thêm biến `CORS_ORIGINS` vào ví dụ môi trường, Render Blueprint và hướng dẫn deploy; origin production dự kiến là `https://cookmate-fe.onrender.com`.
+- Kiểm tra nội bộ: `npm.cmd run lint` ở `server/`, `npm.cmd run build` ở `client/`, `git diff --check`; kiểm tra HTTP health với Origin được cho phép, Origin ngoài allowlist và request không có Origin. Tất cả đạt.
+- Project owner xác nhận local CORS/frontend test thành công. Checklist production CORS/env vẫn `[~]` đến khi thay đổi được merge và xác minh trên production.
+- Commit `c4e370b` đã push; PR #24 đã merge vào `develop` tại `739c8bf`; đồng bộ local `develop` bằng fast-forward.
+- Ban đầu biến `CORS_ORIGINS` được thêm nhầm vào Static Site; sau đó project owner thêm đúng vào backend Render.
+- Production test trên `https://cookmate-fe.onrender.com/recipes` không còn lỗi tải và hiển thị empty state `No recipes found`; API trả `200` cùng `recipes: []`, xác nhận kết nối frontend/backend và CORS hoạt động. Database hiện chưa có recipe records.
+- Đánh dấu task CORS/environment production `[x]` trong checklist.
+
+### Public API base URL và kiểm tra endpoint production — đang thực hiện
+
+- Tạo branch `feature/public-api-production` từ `develop` tại `739c8bf`; giữ cập nhật checklist/work log ghi nhận task CORS đã hoàn thành.
+- Cập nhật OpenAPI để Swagger mặc định dùng production API, đồng thời giữ server localhost cho phát triển.
+- Công khai API base URL, Swagger UI, health check và recipe-list URL trong README/Postman; đặt `baseUrl` của Postman collection về production và ghi chú smoke checks an toàn.
+- Kiểm tra nội bộ: backend lint, frontend build, parse Postman JSON và kiểm tra OpenAPI production/local servers đều đạt. Không truy cập được URL Render từ môi trường terminal (Windows TLS trả `SEC_E_NO_CREDENTIALS`), nên live endpoints được project owner xác minh bằng Postman.
+- Project owner xác nhận production `GET /api/v1/health` và `GET /api/v1/recipes` đều trả `200`; recipes hiện rỗng hợp lệ. Swagger UI local hiển thị cả Production và Local development; gọi production trực tiếp từ Swagger local bị CORS như dự kiến, vì origin đó không thuộc production allowlist.
+- Commit `328b25a` đã push; PR #25 đã merge vào `develop` tại `e283fcb`; đồng bộ local `develop` bằng fast-forward.
+- Đánh dấu task public API base URL/production endpoints `[x]` trong checklist.
+
+### Hoàn thiện README và link live — đang thực hiện
+
+- Tạo branch `feature/readme-live-links` từ `develop` tại `e283fcb`; giữ cập nhật checklist/work log đã ghi nhận PR #25.
+- Viết lại README tiếng Việt với mô tả MVP, công nghệ, link app/API/Swagger/endpoints, hướng dẫn cài đặt local trên PowerShell, cấu hình `.env`, Postman và cấu trúc repo.
+- Kiểm tra nội bộ: `git diff --check` đạt và các đường dẫn tương đối trong README đều trỏ tới file có thật.
+- Project owner xác nhận các link README/live hoạt động ổn.
+- Commit `0505070` đã push; PR #26 đã merge vào `develop` tại `5f24506`; đồng bộ local `develop` bằng fast-forward.
+- Đánh dấu task README và link live `[x]` trong checklist.
+
+### 2026-11-15 — An toàn hơn cho seed dữ liệu demo — đã tự kiểm tra
+
+- Đồng bộ `develop` tại `5f245062` và tạo branch `feature/demo-recipe-data`.
+- Điều chỉnh `seed:recipes` để yêu cầu `MONGO_URI` và `SEED_USER_EMAIL` rõ ràng; không tự chọn user đầu tiên hoặc tự kết nối MongoDB local khi thiếu cấu hình.
+- Seed vẫn upsert theo title, có thể chạy lại mà không tạo bản ghi trùng; luôn đóng kết nối kể cả khi gặp lỗi.
+- Project owner chạy seed hai lần trên MongoDB local; cả hai lần đều báo seed 8 công thức cho tài khoản được chỉ định. Backend local kết nối thành công ở cổng 5000.
+- Postman `GET /api/v1/recipes` trả 10 bản ghi: 8 công thức seed và 2 công thức đã có sẵn; không có bản sao do seed.
+- Chỉ chạy trên MongoDB local; không seed vào Atlas hay production.
+- Kiểm tra nội bộ: server lint, cú pháp Node.js và `git diff --check` đều đạt.
+
+### 2026-11-15 — Mở rộng dữ liệu demo lên 100 công thức — đã tự kiểm tra
+
+- Theo yêu cầu project owner, mở rộng bộ seed từ 8 lên đúng 100 công thức duy nhất, gồm món Việt và một số nhóm món quốc tế, món chay, bữa sáng, tráng miệng và đồ uống.
+- Cập nhật checklist từ 8–12 thành 100 công thức; vẫn giữ `[~]` cho tới khi thay đổi được kiểm tra, commit và merge.
+- Kiểm tra nội bộ: module xuất đúng 100 mục, 100 tiêu đề duy nhất, mọi mục có category/description/ingredients/instructions; Node syntax check, server lint và `git diff --check` đạt.
+- Project owner xác nhận seed 100 công thức và kiểm tra thành công qua Postman trên MongoDB local.
+- Thay đổi đang được chuẩn bị commit/push trên branch `feature/demo-recipe-data`; checklist vẫn `[~]` cho đến khi PR được merge.
+
+### 2026-11-15 — Chuyển lỗi async backend vào error handler tập trung — đang chờ project owner test
+
+- Đồng bộ từ `origin/develop` tại `c83fed5` và tạo branch `fix/backend-async-errors`.
+- Thêm `asyncHandler` để chuyển Promise rejection của các controller async qua Express error middleware trên Express 4; áp dụng cho auth, recipes, favorites, meal plans và shopping list.
+- Thêm error middleware trả `400` cho Mongoose CastError/ValidationError, `500` với thông báo chung cho lỗi ngoài dự kiến; không gửi stack trace hay thông tin validation nhạy cảm cho client.
+- Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` đạt; request HTTP cô lập `GET /api/v1/recipes/not-an-object-id` trả `400`, tiếp theo `GET /api/v1/health` vẫn trả `200`; `git diff --check` đạt.
+- Chưa commit/push. Chờ project owner chạy kiểm tra thủ công trước khi cho phép commit/push.
+### 2026-11-15 — Bảo vệ quyền sở hữu meal plan và shopping item — chờ project owner test
+
+- Đồng bộ `develop` tại `f03fdaa`, sau khi PR backend error handler được merge; tạo branch `fix/user-owned-resource-updates`.
+- Thu hẹp các trường được phép cập nhật: meal plan chỉ nhận `date`, `mealType`, `note`, `recipeId`; shopping item chỉ nhận `checked`. Trường `user` và các trường không được hỗ trợ bị bỏ qua; request không có trường hợp lệ trả `400`.
+- Giữ truy vấn cập nhật ràng buộc theo cả `_id` và user hiện tại.
+- Kiểm tra nội bộ: `npm.cmd run lint` trong `server/` và `git diff --check` đạt; rà soát diff xác nhận không còn truyền raw request body vào truy vấn cập nhật.
+- Chưa commit/push. Chờ project owner kiểm tra API với hai tài khoản trước.
+- Theo đề nghị project owner, tự chạy thêm kiểm tra tích hợp HTTP với MongoDB local trong database tạm `cookmate_ownership_test_codex`; xác nhận hai endpoint không đổi owner, user khác không xem được bản ghi, trường `checked` hợp lệ vẫn cập nhật, và PATCH chỉ có trường owner trả `400`. Database tạm đã được xóa sau kiểm tra; không tạo file test và không truy cập Atlas/production.
+- Project owner xác nhận PR đã merge. PR #29 merge vào `develop` tại `c091e8c`; đồng bộ local `develop` bằng fast-forward và chuyển mục kiểm tra phân quyền sang `[x]`.
+### 2026-11-15 — Giữ shopping list khi không có meal plan — chờ project owner test
+
+- Tiếp tục rà theo mức độ ảnh hưởng sau PR #29; chọn lỗi thao tác `Generate from meal plan` xóa toàn bộ shopping list khi không có meal plan/nguyên liệu để tạo danh sách mới.
+- Tạo branch `fix/shopping-list-empty-regeneration` từ `develop` mới nhất tại `c091e8c`.
+- Thêm kiểm tra trước khi xóa danh sách cũ; nếu không có nguyên liệu khả dụng, API trả `400` cùng hướng dẫn và giữ nguyên shopping list.
+- Kiểm tra nội bộ: server lint và `git diff --check` đạt; tích hợp HTTP với MongoDB local trong database tạm xác nhận POST trả `400`, mục shopping list và trạng thái checked còn nguyên. Database tạm đã được xóa.
+- Chưa commit/push; chờ project owner tự kiểm tra theo workflow.
+- Project owner xác nhận PR đã merge. PR #30 merge vào `develop` tại `be006cf`; đồng bộ local `develop` bằng fast-forward.
+
+### 2026-11-15 — Giữ trạng thái checked khi tạo lại shopping list — đã merge
+
+- PR #30 đã merge vào `develop` tại `be006cf`; đồng bộ local `develop` bằng fast-forward.
+- Tạo branch `fix/shopping-list-checked-preservation` từ `develop`.
+- Khi tạo lại danh sách từ meal plan, giữ `checked` cho nguyên liệu đã tồn tại theo tên không phân biệt hoa/thường; nguyên liệu mới mặc định chưa checked. Các nguyên liệu không còn trong meal plan vẫn bị loại khỏi danh sách như trước.
+- Kiểm tra nội bộ: server lint và `git diff --check` đạt; kiểm tra tích hợp HTTP/MongoDB local xác nhận giữ checked qua hai lần generate, item mới unchecked và item cũ không còn trong kế hoạch bị loại. Database tạm đã được xóa.
+- Chưa commit/push; chờ project owner test.
+- Project owner xác nhận PR #31 đã merge vào `develop` tại `190b7b9`; đồng bộ local `develop` bằng fast-forward. Mục error handler và shopping list được chuyển sang `[x]` trong checklist.
+
+### 2026-11-15 — Không trả email creator từ recipe detail công khai — đã merge
+
+- Đồng bộ `develop` sau PR #31 tại `190b7b9` và tạo branch `fix/remove-public-creator-email`.
+- `GET /api/v1/recipes/:id` trước đó populate cả `name` và `email` của creator. Giao diện không dùng email; giới hạn projection về `name` để không lộ email qua endpoint public.
+- Kiểm tra nội bộ: server lint và `git diff --check` đạt; kiểm tra HTTP với DB local tạm xác nhận detail trả `200`, giữ creator name và không chứa email. Database thử nghiệm đã được xóa.
+- Project owner xác nhận đã test thành công và PR #32 đã merge. Commit PR: `50da890` (`fix(api): hide creator email in public recipe details`); merge commit trên `develop`: `e0829c7`.
+- Đồng bộ local `develop` bằng fast-forward tới `origin/develop`; thêm mục bảo vệ email creator vào checklist và đánh dấu `[x]` sau khi code, test và PR đều đã hoàn tất.
+
+### 2026-11-15 — Rà soát kiểm thử và chất lượng V1 — đã test, chờ merge
+
+- Tạo branch `feature/v1-quality-verification` từ `develop` mới nhất (`e0829c7`), giữ lại cập nhật checklist/work log của PR #32.
+- `npm.cmd run lint` trong `client/`, `npm.cmd run build` trong `client/` và `npm.cmd run lint` trong `server/` đều đạt.
+- Chạy smoke/integration check bằng API local với MongoDB database tạm riêng, sau đó xóa database: health; register/login/current user; từ chối password yếu; quyền admin/user; tìm kiếm theo title/ingredient và lọc category; recipe detail không trả creator email; favorites không trùng và tách theo user; meal plan, duplicate slot, ownership và cập nhật; shopping list generate, checked preservation và tách theo user; CORS cho origin allowlist. Tất cả kiểm tra đều đạt.
+- Chạy Vite preview và gọi trực tiếp `/`, `/recipes`, `/recipes/:id`, `/meal-planner`, `/shopping-list`, `/admin/recipes`; đều trả `200`, asset JS/CSS cũng trả `200`.
+- Project owner xác nhận đã tự kiểm tra giao diện thành công, gồm các luồng chính trên production. Request HTTP trực tiếp tới production từ workspace vẫn bị đóng kết nối nên phần smoke test production được xác nhận qua trình duyệt của project owner.
+- Không phát hiện lỗi chức năng/console cần sửa trong phạm vi kiểm tra; không thêm thay đổi code chức năng. Checklist giữ `[~]` cho đến khi thay đổi nhật ký/checklist được commit và PR merge.
+- Project owner xác nhận PR #33 đã merge vào `develop`; merge commit `6106641`. Đồng bộ local `develop` bằng fast-forward và hoàn tất checklist cho các luồng search, favorites, meal planning, kết nối API, phân quyền, build/lint và rà console.
+
+### 2026-11-15 — Rà soát loading/error, phiên đăng nhập, recipe detail và admin CRUD — đã tự test
+
+- Tạo branch duy nhất `feature/v1-ui-edge-case-review` từ `develop` tại `6106641`; mang theo cập nhật checklist/work log còn chưa commit sau PR #33.
+- Đồng bộ khởi tạo auth session: token và user được đọc/xóa cùng nhau để tránh navbar hiển thị đã đăng nhập khi localStorage chỉ còn một nửa session hoặc JSON user bị lỗi.
+- Recipe detail phân biệt 404 với lỗi tải tạm thời, có nút thử lại; trạng thái tải theo recipe ID và trạng thái favorite theo user/recipe để tránh hiển thị recipe/favorite cũ khi chuyển trang hoặc tài khoản.
+- Trang admin recipe có loading và empty state, khóa nút submit trong lúc lưu, khóa thao tác danh sách khi xóa, hiển thị tiến độ; nếu lưu thành công nhưng tải lại danh sách lỗi thì báo rõ dữ liệu đã lưu.
+- Kiểm tra nội bộ: frontend lint/build và backend lint đạt. Smoke test API trên MongoDB local tạm xác nhận session hết hạn trả `401`, user thường bị từ chối CRUD, admin tạo/sửa/xóa recipe thành công, recipe đã xóa trả `404`, ID sai trả `400`; database tạm đã được xóa.
+- Project owner xác nhận đã tự kiểm tra thành công các luồng session, recipe detail và quản lý công thức trên trình duyệt. Có thể commit/push branch để mở PR; các mục checklist liên quan vẫn `[~]` cho tới khi PR được merge.
+- Project owner xác nhận PR #34 đã merge vào `develop`; merge commit `91a485e`. Đồng bộ local `develop` và đánh dấu hoàn thành các checklist recipe detail, recipe CRUD và loading/error/empty/session expiration. Việc trình bày V2 vẫn để sau khi rà xong các đầu việc V1 còn thiết yếu.
+- Project owner xác nhận đã hoàn tất chuẩn bị tài khoản demo và seed 100 công thức lên MongoDB Atlas; kiểm tra dữ liệu hiển thị trên website và test quyền admin thành công. Cập nhật checklist mục demo thành `[x]`.
+- Project owner xác nhận phần layout/navbar/responsive cơ bản, Login/Register/JWT/logout và Home/recipe list/card đã hoàn thành. Cập nhật các mục checklist tương ứng thành `[x]`; không phát sinh thay đổi code trong phiên này.

@@ -1,0 +1,45 @@
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+
+function createToken(userId) {
+  return jwt.sign({ userId }, process.env.JWT_SECRET || 'development-secret', {
+    expiresIn: process.env.JWT_EXPIRE || '7d',
+  });
+}
+
+function userResponse(user) {
+  return { id: user._id, name: user.name, email: user.email, role: user.role };
+}
+
+export async function register(req, res) {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Name, email and password are required' });
+  }
+
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
+    return res.status(400).json({ message: 'Password must be at least 8 characters and include uppercase, lowercase, and a number' });
+  }
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) return res.status(409).json({ message: 'Email is already registered' });
+
+  const user = await User.create({ name, email, password });
+  return res.status(201).json({ token: createToken(user._id), user: userResponse(user) });
+}
+
+export async function login(req, res) {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user || !(await user.comparePassword(password || ''))) {
+    return res.status(401).json({ message: 'Invalid email or password' });
+  }
+
+  return res.json({ token: createToken(user._id), user: userResponse(user) });
+}
+
+export function getCurrentUser(req, res) {
+  return res.json({ user: userResponse(req.user) });
+}

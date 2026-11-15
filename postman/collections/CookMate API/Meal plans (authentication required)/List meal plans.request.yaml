@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/meal-plans?dateFrom={{dateFrom}}&dateTo={{dateTo}}"
+method: GET
+queryParams:
+  dateFrom: "{{dateFrom}}"
+  dateTo: "{{dateTo}}"
+order: 1000

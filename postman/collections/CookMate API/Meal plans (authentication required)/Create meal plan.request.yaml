@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/meal-plans"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "date": "2026-11-20",
+      "mealType": "dinner",
+      "recipeId": "{{recipeId}}",
+      "note": "Optional note"
+    }
+order: 2000
