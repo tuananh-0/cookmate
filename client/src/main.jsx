@@ -25,12 +25,78 @@ function RecipesPage() {
 }
 
 function RecipeDetailPage() {
-  const { id } = useParams(); const { token } = useAuth(); const [recipe, setRecipe] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [isFavorite, setIsFavorite] = useState(false); const [favoriteLoading, setFavoriteLoading] = useState(false); const [favoriteError, setFavoriteError] = useState('');
-  useEffect(() => { let active = true; api.get(`/recipes/${id}`).then(({ data }) => { if (active) setRecipe(data.recipe); }).catch(() => { if (active) setError('Recipe not found.'); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [id]);
-  useEffect(() => { let active = true; if (token) api.get('/favorites').then(({ data }) => { if (active) setIsFavorite(data.favorites.some((favorite) => favorite.recipe?._id === id || favorite.recipe === id)); }).catch((requestError) => { if (active) setFavoriteError(requestError.response?.data?.message || 'Unable to load favorite status.'); }); return () => { active = false; }; }, [id, token]);
-  async function toggleFavorite() { if (!token) { setFavoriteError('Please log in to save favorites.'); return; } setFavoriteLoading(true); setFavoriteError(''); try { if (isFavorite) { await api.delete(`/favorites/${id}`, { headers: { Authorization: `Bearer ${token}` } }); setIsFavorite(false); } else { await api.post(`/favorites/${id}`, {}, { headers: { Authorization: `Bearer ${token}` } }); setIsFavorite(true); } } catch (requestError) { setFavoriteError(requestError.response?.data?.message || 'Unable to update favorite.'); } finally { setFavoriteLoading(false); } }
+  const { id } = useParams();
+  const { token, user } = useAuth();
+  const [recipe, setRecipe] = useState(null);
+  const [loadedRecipeKey, setLoadedRecipeKey] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
+  const [error, setError] = useState('');
+  const [favoriteState, setFavoriteState] = useState({ key: '', isFavorite: false, loading: false, error: '' });
+  const recipeKey = `${id}:${retryCount}`;
+  const favoriteKey = `${user?.id || 'anonymous'}:${id}`;
+  const loading = loadedRecipeKey !== recipeKey;
+  const isFavorite = favoriteState.key === favoriteKey && favoriteState.isFavorite;
+  const favoriteLoading = Boolean(token) && (favoriteState.key !== favoriteKey || favoriteState.loading);
+  const favoriteError = favoriteState.key === favoriteKey ? favoriteState.error : '';
+
+  useEffect(() => {
+    let active = true;
+    api.get(`/recipes/${id}`)
+      .then(({ data }) => {
+        if (active) {
+          setRecipe(data.recipe);
+          setError('');
+        }
+      })
+      .catch((requestError) => {
+        if (!active) return;
+        setRecipe(null);
+        setError(requestError.response?.status === 404 ? 'Recipe not found.' : 'Unable to load recipe. Please try again.');
+      })
+      .finally(() => {
+        if (active) setLoadedRecipeKey(recipeKey);
+      });
+    return () => { active = false; };
+  }, [id, recipeKey]);
+
+  useEffect(() => {
+    let active = true;
+    if (!token) return () => { active = false; };
+    api.get('/favorites')
+      .then(({ data }) => {
+        if (active) {
+          setFavoriteState({
+            key: favoriteKey,
+            isFavorite: data.favorites.some((favorite) => favorite.recipe?._id === id || favorite.recipe === id),
+            loading: false,
+            error: '',
+          });
+        }
+      })
+      .catch((requestError) => {
+        if (active) setFavoriteState({ key: favoriteKey, isFavorite: false, loading: false, error: requestError.response?.data?.message || 'Unable to load favorite status.' });
+      });
+    return () => { active = false; };
+  }, [favoriteKey, id, token]);
+
+  async function toggleFavorite() {
+    if (!token) {
+      setFavoriteState({ key: favoriteKey, isFavorite: false, loading: false, error: 'Please log in to save favorites.' });
+      return;
+    }
+    setFavoriteState((current) => ({ key: favoriteKey, isFavorite: current.key === favoriteKey && current.isFavorite, loading: true, error: '' }));
+    try {
+      if (isFavorite) await api.delete(`/favorites/${id}`);
+      else await api.post(`/favorites/${id}`, {});
+      setFavoriteState({ key: favoriteKey, isFavorite: !isFavorite, loading: false, error: '' });
+    } catch (requestError) {
+      setFavoriteState({ key: favoriteKey, isFavorite, loading: false, error: requestError.response?.data?.message || 'Unable to update favorite.' });
+    }
+  }
+
   if (loading) return <main className="page-container content-page"><p className="muted">Loading recipe...</p></main>;
-  if (error) return <main className="page-container content-page"><p className="form-error">{error}</p><Link to="/recipes">← Back to recipes</Link></main>;
+  if (error) return <main className="page-container content-page"><p className="form-error">{error}</p>{error !== 'Recipe not found.' && <button className="secondary-button" type="button" onClick={() => setRetryCount((count) => count + 1)}>Try again</button>}<p><Link to="/recipes">← Back to recipes</Link></p></main>;
+  if (!recipe) return <main className="page-container content-page"><p className="form-error">Recipe not found.</p><Link to="/recipes">← Back to recipes</Link></main>;
   return <main className="page-container detail-page"><Link className="back-link" to="/recipes">← Back to recipes</Link><p className="eyebrow">{recipe.category}</p><h1>{recipe.title}</h1><p className="detail-description">{recipe.description}</p><div className="detail-meta"><span>{recipe.prepTime + recipe.cookTime} min total</span><span>{recipe.servings} servings</span></div><button className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} type="button" onClick={toggleFavorite} disabled={favoriteLoading}>{favoriteLoading ? 'Updating...' : isFavorite ? '♥ Saved to favorites' : '♡ Save to favorites'}</button>{favoriteError && <p className="form-error">{favoriteError}</p>}<section className="detail-section"><h2>Ingredients</h2><ul>{recipe.ingredients.map((ingredient) => <li key={`${ingredient.name}-${ingredient.quantity}`}><span>{ingredient.name}</span><strong>{ingredient.quantity}</strong></li>)}</ul></section><section className="detail-section"><h2>Instructions</h2><ol>{recipe.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol></section></main>;
 }
 
@@ -55,15 +121,17 @@ function ShoppingListPage() {
 }
 
 function RecipeManagementPage() {
-  const { user } = useAuth(); const [recipes, setRecipes] = useState([]); const [editingId, setEditingId] = useState(null); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const emptyForm = { title: '', description: '', category: 'Vietnamese', prepTime: 0, cookTime: 0, servings: 2, ingredients: '', instructions: '' }; const [form, setForm] = useState(emptyForm);
+  const { user } = useAuth(); const [recipes, setRecipes] = useState([]); const [loadedForUser, setLoadedForUser] = useState(''); const [editingId, setEditingId] = useState(null); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [saving, setSaving] = useState(false); const [deletingId, setDeletingId] = useState(''); const emptyForm = { title: '', description: '', category: 'Vietnamese', prepTime: 0, cookTime: 0, servings: 2, ingredients: '', instructions: '' }; const [form, setForm] = useState(emptyForm);
+  const loading = user?.role === 'admin' && loadedForUser !== user.id;
   async function loadRecipes() { const { data } = await api.get('/recipes'); setRecipes(data.recipes); }
-  useEffect(() => { let active = true; if (user?.role === 'admin') api.get('/recipes').then(({ data }) => { if (active) setRecipes(data.recipes); }).catch(() => { if (active) setError('Unable to load recipes.'); }); return () => { active = false; }; }, [user]);
+  useEffect(() => { let active = true; if (user?.role !== 'admin') return () => { active = false; }; api.get('/recipes').then(({ data }) => { if (active) { setRecipes(data.recipes); setError(''); } }).catch(() => { if (active) setError('Unable to load recipes. Please try again.'); }).finally(() => { if (active) setLoadedForUser(user.id); }); return () => { active = false; }; }, [user]);
   function updateField(event) { setForm({ ...form, [event.target.name]: event.target.value }); }
   function editRecipe(recipe) { setEditingId(recipe._id); setForm({ ...recipe, ingredients: recipe.ingredients.map((item) => `${item.name}|${item.quantity}`).join('\n'), instructions: recipe.instructions.join('\n') }); setMessage(''); }
-  async function saveRecipe(event) { event.preventDefault(); setError(''); const payload = { ...form, prepTime: Number(form.prepTime), cookTime: Number(form.cookTime), servings: Number(form.servings), ingredients: form.ingredients.split('\n').filter(Boolean).map((line) => { const [name, quantity] = line.split('|'); return { name: name.trim(), quantity: (quantity || '').trim() }; }), instructions: form.instructions.split('\n').filter(Boolean).map((line) => line.trim()) }; try { if (editingId) await api.patch(`/recipes/${editingId}`, payload); else await api.post('/recipes', payload); setForm(emptyForm); setEditingId(null); setMessage('Recipe saved successfully.'); await loadRecipes(); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to save recipe.'); } }
-  async function deleteRecipe(id) { if (!window.confirm('Delete this recipe?')) return; setError(''); try { await api.delete(`/recipes/${id}`); setRecipes((current) => current.filter((recipe) => recipe._id !== id)); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to delete recipe.'); } }
+  async function saveRecipe(event) { event.preventDefault(); setError(''); setMessage(''); setSaving(true); const payload = { ...form, prepTime: Number(form.prepTime), cookTime: Number(form.cookTime), servings: Number(form.servings), ingredients: form.ingredients.split('\n').filter(Boolean).map((line) => { const [name, quantity] = line.split('|'); return { name: name.trim(), quantity: (quantity || '').trim() }; }), instructions: form.instructions.split('\n').filter(Boolean).map((line) => line.trim()) }; try { if (editingId) await api.patch(`/recipes/${editingId}`, payload); else await api.post('/recipes', payload); setForm(emptyForm); setEditingId(null); setMessage('Recipe saved successfully.'); try { await loadRecipes(); } catch { setError('Recipe saved, but the list could not be refreshed. Reload the page to see the latest recipes.'); } } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to save recipe.'); } finally { setSaving(false); } }
+  async function deleteRecipe(id) { if (!window.confirm('Delete this recipe?')) return; setError(''); setMessage(''); setDeletingId(id); try { await api.delete(`/recipes/${id}`); setRecipes((current) => current.filter((recipe) => recipe._id !== id)); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to delete recipe.'); } finally { setDeletingId(''); } }
   if (!user || user.role !== 'admin') return <main className="page-container content-page"><p className="form-error">Admin access required.</p><Link to="/recipes">Back to recipes →</Link></main>;
-  return <main className="page-container content-page"><p className="eyebrow">ADMIN TOOLS</p><h1>Manage recipes</h1><form className="recipe-admin-form" onSubmit={saveRecipe}><input required name="title" value={form.title} onChange={updateField} placeholder="Recipe title" /><input required name="category" value={form.category} onChange={updateField} placeholder="Category" /><textarea required name="description" value={form.description} onChange={updateField} placeholder="Short description" /><div className="form-row"><label className="field-label">Prep time (minutes)<input min="0" name="prepTime" type="number" value={form.prepTime} onChange={updateField} placeholder="e.g. 15" /></label><label className="field-label">Cook time (minutes)<input min="0" name="cookTime" type="number" value={form.cookTime} onChange={updateField} placeholder="e.g. 30" /></label><label className="field-label">Servings<input min="1" name="servings" type="number" value={form.servings} onChange={updateField} placeholder="e.g. 2" /></label></div><textarea required name="ingredients" value={form.ingredients} onChange={updateField} placeholder={'Ingredients, one per line: name|quantity'} /><textarea required name="instructions" value={form.instructions} onChange={updateField} placeholder="Instructions, one per line" /><div className="form-actions"><button className="primary-button" type="submit">{editingId ? 'Update recipe' : 'Create recipe'}</button>{editingId && <button className="secondary-button" type="button" onClick={() => { setEditingId(null); setForm(emptyForm); }}>Cancel</button>}</div></form>{message && <p className="success-message">{message}</p>}{error && <p className="form-error">{error}</p>}<div className="admin-recipe-list">{recipes.map((recipe) => <article className="admin-recipe-row" key={recipe._id}><div><strong>{recipe.title}</strong><small>{recipe.category}</small></div><div><button className="text-button" type="button" onClick={() => editRecipe(recipe)}>Edit</button><button className="text-button" type="button" onClick={() => deleteRecipe(recipe._id)}>Delete</button></div></article>)}</div></main>;
+  if (loading) return <main className="page-container content-page"><p className="muted">Loading recipes...</p></main>;
+  return <main className="page-container content-page"><p className="eyebrow">ADMIN TOOLS</p><h1>Manage recipes</h1><form className="recipe-admin-form" onSubmit={saveRecipe}><input required name="title" value={form.title} onChange={updateField} placeholder="Recipe title" /><input required name="category" value={form.category} onChange={updateField} placeholder="Category" /><textarea required name="description" value={form.description} onChange={updateField} placeholder="Short description" /><div className="form-row"><label className="field-label">Prep time (minutes)<input min="0" name="prepTime" type="number" value={form.prepTime} onChange={updateField} placeholder="e.g. 15" /></label><label className="field-label">Cook time (minutes)<input min="0" name="cookTime" type="number" value={form.cookTime} onChange={updateField} placeholder="e.g. 30" /></label><label className="field-label">Servings<input min="1" name="servings" type="number" value={form.servings} onChange={updateField} placeholder="e.g. 2" /></label></div><textarea required name="ingredients" value={form.ingredients} onChange={updateField} placeholder={'Ingredients, one per line: name|quantity'} /><textarea required name="instructions" value={form.instructions} onChange={updateField} placeholder="Instructions, one per line" /><div className="form-actions"><button className="primary-button" disabled={saving} type="submit">{saving ? 'Saving...' : editingId ? 'Update recipe' : 'Create recipe'}</button>{editingId && <button className="secondary-button" type="button" disabled={saving} onClick={() => { setEditingId(null); setForm(emptyForm); }}>Cancel</button>}</div></form>{message && <p className="success-message">{message}</p>}{error && <p className="form-error">{error}</p>}{!error && recipes.length === 0 && <p className="muted">No recipes yet. Create the first one above.</p>}<div className="admin-recipe-list">{recipes.map((recipe) => <article className="admin-recipe-row" key={recipe._id}><div><strong>{recipe.title}</strong><small>{recipe.category}</small></div><div><button className="text-button" type="button" disabled={Boolean(deletingId)} onClick={() => editRecipe(recipe)}>Edit</button><button className="text-button" type="button" disabled={Boolean(deletingId)} onClick={() => deleteRecipe(recipe._id)}>{deletingId === recipe._id ? 'Deleting...' : 'Delete'}</button></div></article>)}</div></main>;
 }
 
 function AuthPage({ register = false }) {
