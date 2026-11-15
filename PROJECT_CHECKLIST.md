@@ -12,7 +12,7 @@
 ## Ngày 2 — Backend nền tảng
 
 - [ ] Khởi tạo Express và kết nối MongoDB
-- [~] Cấu hình CORS, JSON parser và error handler
+- [x] Cấu hình CORS, JSON parser và error handler
 - [ ] Tạo health check API
 - [x] Tạo model User
 - [x] Làm register, login và JWT
@@ -33,7 +33,7 @@
 
 - [~] Tạo model MealPlan
 - [~] Làm thực đơn theo ngày hoặc tuần
-- [~] Tạo shopping list đơn giản từ meal plan
+- [x] Tạo shopping list đơn giản từ meal plan
 - [~] Gộp nguyên liệu trùng nhau nếu còn thời gian
 - [ ] Pantry là chức năng bonus, chỉ làm sau khi hoàn thành MVP
 
@@ -50,10 +50,10 @@
 ## Ngày 6 — Hoàn thiện và kiểm thử
 
 - [~] Làm meal planner page
-- [~] Làm shopping list page
+- [x] Làm shopping list page
 - [ ] Kết nối toàn bộ API với frontend
 - [~] Xử lý loading, error, empty state và token hết hạn
-- [x] Kiểm tra phân quyền và các nghiệp vụ chính
+- [~] Kiểm tra phân quyền và các nghiệp vụ chính
 - [ ] Chạy build, lint và sửa console error
 
 ## Ngày 7 — Deploy và thuyết trình
