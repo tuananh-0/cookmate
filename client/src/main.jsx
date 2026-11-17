@@ -9,19 +9,24 @@ import './styles.css';
 
 function Layout({ children }) {
   const { user, logout } = useAuth();
-  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links"><Link to="/recipes">Recipes</Link><Link to="/ingredient-search">By ingredients</Link>{user ? <><Link to="/submit-recipe">Submit recipe</Link><Link to="/my-submissions">My submissions</Link><Link to="/meal-planner">Meal plan</Link><Link to="/shopping-list">Shopping list</Link>{user.role === 'admin' && <><Link to="/admin/review">Review queue</Link><Link to="/admin/recipes">Manage</Link></>}<span className="user-greeting">Hi, {user.name}</span><button className="logout-button" type="button" onClick={logout}>Log out</button></> : <><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></>}</nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
+  const closeNavMenu = (event) => { event.currentTarget.closest('details').open = false; };
+  return <div className="site-shell"><header className="navbar"><Link className="brand" to="/">CookMate</Link><nav className="nav-links" aria-label="Main navigation"><Link to="/recipes">Recipes</Link><Link to="/ingredient-search">By ingredients</Link>{user ? <><details className="nav-menu"><summary>My CookMate</summary><div className="nav-menu-panel"><span className="nav-menu-heading">My kitchen</span><Link to="/meal-planner" onClick={closeNavMenu}>Meal plan</Link><Link to="/shopping-list" onClick={closeNavMenu}>Shopping list</Link><span className="nav-menu-heading">Contribute</span><Link to="/submit-recipe" onClick={closeNavMenu}>Submit recipe</Link><Link to="/my-submissions" onClick={closeNavMenu}>My submissions</Link>{user.role === 'admin' && <><span className="nav-menu-heading">Administration</span><Link to="/admin/review" onClick={closeNavMenu}>Review queue</Link><Link to="/admin/recipes" onClick={closeNavMenu}>Manage recipes</Link></>}</div></details><span className="user-greeting">Hi, {user.name}</span><button className="logout-button" type="button" onClick={logout}>Log out</button></> : <><Link to="/login">Log in</Link><Link className="nav-cta" to="/register">Get started</Link></>}</nav></header>{children}<footer className="footer">CookMate · Plan better, cook happier.</footer></div>;
 }
 
 function HomePage() {
   return <main className="hero page-container"><div className="hero-copy"><p className="eyebrow">YOUR PERSONAL KITCHEN COMPANION</p><h1>Good food starts with a good plan.</h1><p className="intro">Discover recipes, plan your meals, and prepare your shopping list in one calm, simple place.</p><Link className="primary-button" to="/recipes">Explore recipes <span>→</span></Link></div><div className="hero-card"><span className="hero-emoji">🥕</span><p>What are you cooking today?</p><div className="mini-recipe"><span>🍜</span><strong>Comfort bowl</strong><small>Ready in 25 min</small></div><div className="mini-recipe"><span>🥗</span><strong>Garden salad</strong><small>Fresh & simple</small></div></div></main>;
 }
 
+function RatingSummary({ recipe }) {
+  return <span className="rating-summary" aria-label={`${recipe.ratingAverage || 0} out of 5, ${recipe.ratingCount || 0} ratings`}><span aria-hidden="true">★</span> {recipe.ratingCount ? `${Number(recipe.ratingAverage).toFixed(1)} (${recipe.ratingCount})` : 'No ratings'}</span>;
+}
+
 function RecipesPage() {
-  const [recipes, setRecipes] = useState([]); const [search, setSearch] = useState(''); const [category, setCategory] = useState(''); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
-  useEffect(() => { const timer = setTimeout(async () => { setLoading(true); try { const params = new URLSearchParams(); if (search.trim()) params.set('search', search.trim()); if (category) params.set('category', category); const { data } = await api.get(`/recipes?${params.toString()}`); setRecipes(data.recipes); setError(''); } catch { setError('Unable to load recipes. Please check that the API is running.'); } finally { setLoading(false); } }, 250); return () => clearTimeout(timer); }, [search, category]);
-  const rankedRecipes = [...recipes].sort((a, b) => { const query = search.trim().toLowerCase(); const aStarts = query && a.title.toLowerCase().startsWith(query); const bStarts = query && b.title.toLowerCase().startsWith(query); return Number(bStarts) - Number(aStarts); });
+  const [recipes, setRecipes] = useState([]); const [search, setSearch] = useState(''); const [category, setCategory] = useState(''); const [sort, setSort] = useState('newest'); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
+  useEffect(() => { const timer = setTimeout(async () => { setLoading(true); try { const params = new URLSearchParams(); if (search.trim()) params.set('search', search.trim()); if (category) params.set('category', category); if (sort === 'rating') params.set('sort', sort); const { data } = await api.get(`/recipes?${params.toString()}`); setRecipes(data.recipes); setError(''); } catch { setError('Unable to load recipes. Please check that the API is running.'); } finally { setLoading(false); } }, 250); return () => clearTimeout(timer); }, [search, category, sort]);
+  const rankedRecipes = sort === 'rating' ? recipes : [...recipes].sort((a, b) => { const query = search.trim().toLowerCase(); const aStarts = query && a.title.toLowerCase().startsWith(query); const bStarts = query && b.title.toLowerCase().startsWith(query); return Number(bStarts) - Number(aStarts); });
   const suggestions = search.trim() ? rankedRecipes.filter((recipe) => recipe.title.toLowerCase().includes(search.trim().toLowerCase())).slice(0, 5) : [];
-  return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><div className="recipe-toolbar"><div className="search-box"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search recipes..." aria-label="Search recipes" />{suggestions.length > 0 && !loading && <div className="search-suggestions" role="listbox">{suggestions.map((recipe) => <button type="button" key={recipe._id} onClick={() => setSearch(recipe.title)}>{recipe.title}<small>{recipe.category}</small></button>)}</div>}</div><select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category"><option value="">All categories</option><option value="Vietnamese">Vietnamese</option><option value="Italian">Italian</option><option value="Healthy">Healthy</option><option value="Japanese">Japanese</option><option value="Breakfast">Breakfast</option><option value="Vegetarian">Vegetarian</option></select></div>{loading && <p className="muted">Loading recipes...</p>}{error && <p className="form-error">{error}</p>}{!loading && !error && rankedRecipes.length === 0 && <p className="muted">No recipes found.</p>}<div className="recipe-grid">{rankedRecipes.map((recipe) => <Link className="recipe-card" to={`/recipes/${recipe._id}`} key={recipe._id}><div className="recipe-image">🍲</div><div className="recipe-card-body"><span className="recipe-category">{recipe.category}</span><h2>{recipe.title}</h2><p>{recipe.description}</p><small>{recipe.prepTime + recipe.cookTime} min · {recipe.servings} servings</small></div></Link>)}</div></main>;
+  return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><div className="recipe-toolbar"><div className="search-box"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search recipes..." aria-label="Search recipes" />{suggestions.length > 0 && !loading && <div className="search-suggestions" role="listbox">{suggestions.map((recipe) => <button type="button" key={recipe._id} onClick={() => setSearch(recipe.title)}>{recipe.title}<small>{recipe.category}</small></button>)}</div>}</div><select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category"><option value="">All categories</option><option value="Vietnamese">Vietnamese</option><option value="Italian">Italian</option><option value="Healthy">Healthy</option><option value="Japanese">Japanese</option><option value="Breakfast">Breakfast</option><option value="Vegetarian">Vegetarian</option></select><select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort recipes"><option value="newest">Newest</option><option value="rating">Top rated</option></select></div>{loading && <p className="muted">Loading recipes...</p>}{error && <p className="form-error">{error}</p>}{!loading && !error && rankedRecipes.length === 0 && <p className="muted">No recipes found.</p>}<div className="recipe-grid">{rankedRecipes.map((recipe) => <Link className="recipe-card" to={`/recipes/${recipe._id}`} key={recipe._id}><div className="recipe-image">🍲</div><div className="recipe-card-body"><span className="recipe-category">{recipe.category}</span><h2>{recipe.title}</h2><p>{recipe.description}</p><div className="recipe-card-meta"><small>{recipe.prepTime + recipe.cookTime} min · {recipe.servings} servings</small><RatingSummary recipe={recipe} /></div></div></Link>)}</div></main>;
 }
 
 function IngredientSearchPage() {
@@ -141,9 +146,19 @@ function RecipeDetailPage() {
   const [retryCount, setRetryCount] = useState(0);
   const [error, setError] = useState('');
   const [favoriteState, setFavoriteState] = useState({ key: '', isFavorite: false, loading: false, error: '' });
+  const [ratingState, setRatingState] = useState({ key: '', rating: null, selection: 0 });
+  const [loadedRatingKey, setLoadedRatingKey] = useState('');
+  const [ratingSaving, setRatingSaving] = useState(false);
+  const [ratingError, setRatingError] = useState('');
+  const [ratingMessage, setRatingMessage] = useState('');
   const recipeKey = `${id}:${retryCount}`;
   const favoriteKey = `${user?.id || 'anonymous'}:${id}`;
+  const ratingKey = `${user?.id || 'anonymous'}:${id}`;
+  const myRating = ratingState.key === ratingKey ? ratingState.rating : null;
+  const selectedRating = ratingState.key === ratingKey ? ratingState.selection : 0;
+  const ratingLoaded = loadedRatingKey === ratingKey;
   const loading = loadedRecipeKey !== recipeKey;
+  const isOwnRecipe = Boolean(recipe && user && String(recipe.createdBy?._id || recipe.createdBy) === String(user.id));
   const isFavorite = favoriteState.key === favoriteKey && favoriteState.isFavorite;
   const favoriteLoading = Boolean(token) && (favoriteState.key !== favoriteKey || favoriteState.loading);
   const favoriteError = favoriteState.key === favoriteKey ? favoriteState.error : '';
@@ -188,6 +203,22 @@ function RecipeDetailPage() {
     return () => { active = false; };
   }, [favoriteKey, id, token]);
 
+  useEffect(() => {
+    let active = true;
+    if (!token || !recipe || isOwnRecipe) return () => { active = false; };
+    api.get(`/recipes/${id}/ratings/me`)
+      .then(({ data }) => {
+        if (!active) return;
+        setRatingError('');
+        setRatingState({ key: ratingKey, rating: data.rating, selection: data.rating || 0 });
+      })
+      .catch((requestError) => {
+        if (active) setRatingError(requestError.response?.data?.message || 'Unable to load your rating.');
+      })
+      .finally(() => { if (active) setLoadedRatingKey(ratingKey); });
+    return () => { active = false; };
+  }, [id, isOwnRecipe, ratingKey, recipe, token]);
+
   async function toggleFavorite() {
     if (!token) {
       setFavoriteState({ key: favoriteKey, isFavorite: false, loading: false, error: 'Please log in to save favorites.' });
@@ -203,10 +234,44 @@ function RecipeDetailPage() {
     }
   }
 
+  async function saveRating() {
+    setRatingSaving(true);
+    setRatingError('');
+    setRatingMessage('');
+    try {
+      const { data } = await api.put(`/recipes/${id}/ratings`, { rating: selectedRating });
+      setRatingState({ key: ratingKey, rating: data.rating, selection: data.rating });
+      const refreshedRecipe = await api.get(`/recipes/${id}`);
+      setRecipe(refreshedRecipe.data.recipe);
+      setRatingMessage('Your rating was saved.');
+    } catch (requestError) {
+      setRatingError(requestError.response?.data?.message || 'Unable to save your rating.');
+    } finally {
+      setRatingSaving(false);
+    }
+  }
+
+  async function removeRating() {
+    setRatingSaving(true);
+    setRatingError('');
+    setRatingMessage('');
+    try {
+      await api.delete(`/recipes/${id}/ratings`);
+      setRatingState({ key: ratingKey, rating: null, selection: 0 });
+      const refreshedRecipe = await api.get(`/recipes/${id}`);
+      setRecipe(refreshedRecipe.data.recipe);
+      setRatingMessage('Your rating was removed.');
+    } catch (requestError) {
+      setRatingError(requestError.response?.data?.message || 'Unable to remove your rating.');
+    } finally {
+      setRatingSaving(false);
+    }
+  }
+
   if (loading) return <main className="page-container content-page"><p className="muted">Loading recipe...</p></main>;
   if (error) return <main className="page-container content-page"><p className="form-error">{error}</p>{error !== 'Recipe not found.' && <button className="secondary-button" type="button" onClick={() => setRetryCount((count) => count + 1)}>Try again</button>}<p><Link to="/recipes">← Back to recipes</Link></p></main>;
   if (!recipe) return <main className="page-container content-page"><p className="form-error">Recipe not found.</p><Link to="/recipes">← Back to recipes</Link></main>;
-  return <main className="page-container detail-page"><Link className="back-link" to="/recipes">← Back to recipes</Link><p className="eyebrow">{recipe.category}</p><h1>{recipe.title}</h1><p className="detail-description">{recipe.description}</p><div className="detail-meta"><span>{recipe.prepTime + recipe.cookTime} min total</span><span>{recipe.servings} servings</span></div><button className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} type="button" onClick={toggleFavorite} disabled={favoriteLoading}>{favoriteLoading ? 'Updating...' : isFavorite ? '♥ Saved to favorites' : '♡ Save to favorites'}</button>{favoriteError && <p className="form-error">{favoriteError}</p>}<section className="detail-section"><h2>Ingredients</h2><ul>{recipe.ingredients.map((ingredient) => <li key={`${ingredient.name}-${ingredient.quantity}`}><span>{ingredient.name}</span><strong>{ingredient.quantity}</strong></li>)}</ul></section><section className="detail-section"><h2>Instructions</h2><ol>{recipe.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol></section></main>;
+  return <main className="page-container detail-page"><Link className="back-link" to="/recipes">← Back to recipes</Link><p className="eyebrow">{recipe.category}</p><h1>{recipe.title}</h1><p className="detail-description">{recipe.description}</p><div className="detail-meta"><span>{recipe.prepTime + recipe.cookTime} min total</span><span>{recipe.servings} servings</span></div><p className="detail-rating"><RatingSummary recipe={recipe} /></p><button className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} type="button" onClick={toggleFavorite} disabled={favoriteLoading}>{favoriteLoading ? 'Updating...' : isFavorite ? '♥ Saved to favorites' : '♡ Save to favorites'}</button>{favoriteError && <p className="form-error">{favoriteError}</p>}<section className="rating-panel" aria-labelledby="rating-title"><h2 id="rating-title">Rate this recipe</h2>{!token ? <p className="muted"><Link to="/login">Log in</Link> to rate this recipe.</p> : isOwnRecipe ? <p className="muted">You cannot rate your own recipe.</p> : <><p className="muted">Your rating: {myRating ? `${myRating} out of 5` : 'Not rated yet'}</p>{ratingLoaded ? <div className="rating-controls"><div className="rating-stars" role="group" aria-label="Choose a rating from 1 to 5">{[1, 2, 3, 4, 5].map((value) => <button key={value} type="button" aria-label={`${value} star${value === 1 ? '' : 's'}`} aria-pressed={selectedRating === value} className={selectedRating >= value ? 'is-selected' : ''} onClick={() => setRatingState((current) => ({ key: ratingKey, rating: current.key === ratingKey ? current.rating : null, selection: value }))}>★</button>)}</div><div className="form-actions"><button type="button" className="primary-button" disabled={!selectedRating || ratingSaving} onClick={saveRating}>{ratingSaving ? 'Saving...' : myRating ? 'Update rating' : 'Submit rating'}</button>{myRating && <button type="button" className="secondary-button" disabled={ratingSaving} onClick={removeRating}>Remove rating</button>}</div></div> : <p className="muted">Loading your rating...</p>}{ratingError && <p className="form-error" role="alert">{ratingError}</p>}{ratingMessage && <p className="success-message" role="status">{ratingMessage}</p>}</>}</section><section className="detail-section"><h2>Ingredients</h2><ul>{recipe.ingredients.map((ingredient) => <li key={`${ingredient.name}-${ingredient.quantity}`}><span>{ingredient.name}</span><strong>{ingredient.quantity}</strong></li>)}</ul></section><section className="detail-section"><h2>Instructions</h2><ol>{recipe.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol></section></main>;
 }
 
 const emptySubmission = { title: '', description: '', category: 'Vietnamese', prepTime: 0, cookTime: 0, servings: 2, ingredients: '', instructions: '' };

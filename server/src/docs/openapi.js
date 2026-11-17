@@ -33,6 +33,12 @@ const options = {
             reviewNote: { type: 'string', maxLength: 500 },
           },
         },
+        RecipeRating: {
+          type: 'object', required: ['rating'],
+          properties: {
+            rating: { type: 'integer', minimum: 1, maximum: 5, example: 4 },
+          },
+        },
         Error: { type: 'object', properties: { message: { type: 'string' } } },
       },
     },
@@ -175,8 +181,12 @@ export default swaggerJsdoc(options);
  *       - in: query
  *         name: category
  *         schema: { type: string }
+ *       - in: query
+ *         name: sort
+ *         schema: { type: string, enum: [newest, rating] }
+ *         description: Sort by newest (default) or confidence-weighted rating.
  *     responses:
- *       200: { description: Public recipes that are approved (legacy recipes without a status remain visible), with count. }
+ *       200: { description: Public approved recipes with ratingAverage and ratingCount. Rating sorting uses a confidence-weighted score to avoid over-promoting recipes with very few ratings. }
  *   post:
  *     summary: Create recipe (admin only)
  *     tags: [Recipes]
@@ -288,6 +298,55 @@ export default swaggerJsdoc(options);
  *       200: { description: Pending recipes and submitter details. }
  *       401: { description: Authentication required. }
  *       403: { description: Admin role required. }
+ * /api/v1/recipes/{id}/ratings/me:
+ *   get:
+ *     summary: Get the current user's rating for a recipe
+ *     tags: [Recipes]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Current user's rating, or null if not rated. }
+ *       401: { description: Authentication required. }
+ *       403: { description: Authors cannot rate their own recipe. }
+ *       404: { description: Recipe not found or not published. }
+ * /api/v1/recipes/{id}/ratings:
+ *   put:
+ *     summary: Create or update the current user's recipe rating
+ *     tags: [Recipes]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/RecipeRating' }
+ *     responses:
+ *       200: { description: Rating saved. One rating per user and recipe; subsequent calls update it. }
+ *       400: { description: Rating must be a whole number from 1 to 5. }
+ *       401: { description: Authentication required. }
+ *       403: { description: Authors cannot rate their own recipe. }
+ *       404: { description: Recipe not found or not published. }
+ *   delete:
+ *     summary: Remove the current user's rating
+ *     tags: [Recipes]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       204: { description: Rating removed. }
+ *       401: { description: Authentication required. }
+ *       404: { description: Recipe or current user's rating not found. }
  * /api/v1/favorites:
  *   get:
  *     summary: List current user's favorites

@@ -93,17 +93,17 @@ Thực hiện theo thứ tự đã thống nhất. Mỗi tính năng dùng branc
 - [x] Cho phép thêm nguyên liệu còn thiếu vào shopping list.
 - [x] Kiểm tra danh sách rỗng, nguyên liệu không khớp, công thức thiếu một phần và quyền truy cập shopping list.
 
-### V2.2 — Người dùng gửi công thức, admin duyệt `[~]`
+### V2.2 — Người dùng gửi công thức, admin duyệt `[x]`
 
-- [ ] Bổ sung trạng thái công thức `pending`, `approved`, `rejected`.
-- [ ] Đặt công thức seed hiện tại và công thức do admin tạo ở trạng thái `approved`.
-- [ ] Cho user gửi công thức và xem trạng thái các công thức đã gửi.
-- [ ] Tạo hàng đợi duyệt cho admin với thao tác approve/reject.
-- [ ] Chỉ công khai công thức `approved` trong list, search và detail.
-- [ ] Yêu cầu duyệt lại khi nội dung công thức đã publish bị sửa.
-- [ ] Kiểm tra quyền sở hữu, quyền admin, trạng thái pending/rejected và tính riêng tư của công thức chưa duyệt.
+- [x] Bổ sung trạng thái công thức `pending`, `approved`, `rejected`.
+- [x] Đặt công thức seed hiện tại và công thức do admin tạo ở trạng thái `approved`.
+- [x] Cho user gửi công thức và xem trạng thái các công thức đã gửi.
+- [x] Tạo hàng đợi duyệt cho admin với thao tác approve/reject.
+- [x] Chỉ công khai công thức `approved` trong list, search và detail.
+- [x] Yêu cầu duyệt lại khi nội dung công thức đã publish bị sửa.
+- [x] Kiểm tra quyền sở hữu, quyền admin, trạng thái pending/rejected và tính riêng tư của công thức chưa duyệt.
 
-### V2.3 — Đánh giá sao và xếp hạng công thức
+### V2.3 — Đánh giá sao và xếp hạng công thức `[~]`
 
 - [ ] Tạo dữ liệu đánh giá 1–5 sao, tối đa một đánh giá cho mỗi user/công thức; cho phép sửa đánh giá.
 - [ ] Chỉ user đăng nhập được đánh giá công thức đã publish; không cho tác giả tự đánh giá công thức của mình.

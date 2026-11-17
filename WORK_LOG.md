@@ -435,9 +435,9 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Marked V2.1 ingredient matching complete in `PROJECT_CHECKLIST.md` after user test, commit, push, and merge.
 - Created `feature/v2-recipe-submissions-moderation` from the updated `develop` for V2.2.
 - Started V2.2: user-submitted recipes must remain private/pending until admin approval; public endpoints expose approved recipes only, while legacy V1 recipes remain public.
-- No commit or push for V2.2 until the user tests the implementation.
+- Implementation, user verification, merge, and V2.2 completion are recorded below.
 
-### V2.2 — Recipe submissions and admin moderation (in progress)
+### V2.2 — Recipe submissions and admin moderation (merged)
 
 - Added recipe publication statuses (`pending`, `approved`, `rejected`) and review metadata. Legacy documents without a status remain public so existing V1 data stays visible.
 - Added authenticated recipe submission, owner-only status listing, admin review queue, and approve/reject endpoint with optional feedback.
@@ -445,4 +445,30 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Added user submission, status tracking, and admin review pages; updated Swagger and seed behavior.
 - Added clear client/API validation for ingredient lines and non-empty instruction steps.
 - Internal checks passed: client `npm.cmd run lint` and `npm.cmd run build`; server `npm.cmd run lint`; OpenAPI smoke check confirmed all moderation routes and status values; `git diff --check` passed (only line-ending normalization notices).
-- Project owner confirmed the manual V2.2 submission/moderation test passed. Preparing commit and push for a PR into `develop`; checklist remains `[~]` until the PR is merged.
+- Project owner confirmed the manual V2.2 submission/moderation test passed. Committed as `293692a`, pushed `feature/v2-recipe-submissions-moderation`, and merged via PR #37.
+
+### 2026-11-18 — V2.2 merged; V2.3 started
+
+- Project owner confirmed V2.2 was merged. Remote `develop` contains merge commit `976e435` (PR #37); local `develop` was fast-forwarded to it.
+- Marked all V2.2 checklist items complete after the user-reported successful test and merge.
+- Created `feature/v2-recipe-ratings` from the updated `develop` and started the V2.3 rating and recipe ranking task.
+- Plan: one rating per authenticated user and published recipe, allow editing/removing one's rating, block self-rating, show average/count, and use a confidence-weighted score for rating sort.
+- No V2.3 commit or push until internal checks pass and the project owner tests the feature.
+
+### 2026-11-18 — V2.3 ratings implementation ready for user testing
+
+- Added a unique per-user/per-recipe rating model, validated to integer values 1–5.
+- Added authenticated endpoints to read one's own rating, create/update it, and remove it. Rating is restricted to published recipes; authors cannot rate their own recipes.
+- Added aggregate rating average/count to recipe list and detail responses, plus a confidence-weighted `sort=rating` option so small vote counts do not dominate.
+- Added star selection, update/remove actions, average/count display, and a Top rated sort option in the frontend.
+- Updated Swagger and V2.3 checklist tracking.
+- Internal checks passed: client lint/build, server lint, schema validation rejects 0/6/fractional ratings, OpenAPI paths present, and `git diff --check` passed.
+- Project owner reported that the rating feature tested successfully.
+- Based on the follow-up UI feedback, grouped secondary navigation under a responsive “My CookMate” dropdown, keeping Recipes and By ingredients visible and showing admin links only to admins.
+- Styled “My CookMate” as a green pill button with clear hover, focus, and open states, plus a rotating dropdown indicator.
+- Client lint/build, server lint, and `git diff --check` passed again after the navbar updates. Waiting for the user's visual/responsive navbar check before committing the branch; no commit or push yet.
+- Added consistent hover feedback to primary and secondary actions, navigation links, recipe cards, list/review rows, ingredient chips, rating stars, and inline links. Added a shared visible keyboard-focus outline and kept disabled buttons from receiving active hover styling.
+- Verified frontend lint/build and whitespace checks after these hover updates. Waiting for the project owner to check the interface in browser before any commit or push.
+- Added an opt-in `seed:ratings` script for explicitly selected existing demo users. It generates deterministic 3–5 star sample ratings for published recipes, skips self-ratings, and preserves any existing ratings. The script warns that generated ratings are synthetic; it has not been run against Atlas or any database.
+- Project owner confirmed the navbar/hover design is acceptable and authorized commit/push/PR. Checks passed; committed as `dcb26dd` (`feat(ratings): add recipe reviews and ranking`) and pushed `feature/v2-recipe-ratings`.
+- PR creation via `gh` is pending because GitHub CLI authentication returned HTTP 401. The branch push succeeded; PR should target `develop` once GitHub CLI is reauthenticated.
