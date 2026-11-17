@@ -1,6 +1,8 @@
 import Recipe from '../models/Recipe.js';
+import RecipeRating from '../models/RecipeRating.js';
 import { normalizeIngredientName } from '../utils/ingredientUtils.js';
 import { publicRecipeFilter } from '../utils/recipeVisibility.js';
+import { addRatingSummaries } from '../utils/recipeRatings.js';
 
 export async function listIngredients(_req, res) {
   const ingredientNames = await Recipe.distinct('ingredients.name', publicRecipeFilter);
@@ -52,7 +54,7 @@ export async function matchRecipesByIngredients(req, res) {
 }
 
 export async function listRecipes(req, res) {
-  const { search, category } = req.query;
+  const { search, category, sort } = req.query;
   const filter = { $and: [publicRecipeFilter] };
   if (category) filter.category = category;
   if (search) {
@@ -66,13 +68,53 @@ export async function listRecipes(req, res) {
   }
 
   const recipes = await Recipe.find(filter).sort({ createdAt: -1 });
-  return res.json({ count: recipes.length, recipes });
+  const ratedRecipes = await addRatingSummaries(recipes, sort === 'rating');
+  return res.json({ count: ratedRecipes.length, recipes: ratedRecipes });
 }
 
 export async function getRecipe(req, res) {
   const recipe = await Recipe.findOne({ _id: req.params.id, ...publicRecipeFilter }).populate('createdBy', 'name');
   if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
-  return res.json({ recipe });
+  const [ratedRecipe] = await addRatingSummaries([recipe]);
+  return res.json({ recipe: ratedRecipe });
+}
+
+export async function getMyRecipeRating(req, res) {
+  const recipe = await Recipe.findOne({ _id: req.params.id, ...publicRecipeFilter }).select('_id createdBy');
+  if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+  if (String(recipe.createdBy) === String(req.user._id)) {
+    return res.status(403).json({ message: 'You cannot rate your own recipe' });
+  }
+  const rating = await RecipeRating.findOne({ recipe: recipe._id, user: req.user._id }).select('rating');
+  return res.json({ rating: rating?.rating || null });
+}
+
+export async function saveRecipeRating(req, res) {
+  const { rating } = req.body || {};
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return res.status(400).json({ message: 'Rating must be a whole number from 1 to 5' });
+  }
+
+  const recipe = await Recipe.findOne({ _id: req.params.id, ...publicRecipeFilter }).select('_id createdBy');
+  if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+  if (String(recipe.createdBy) === String(req.user._id)) {
+    return res.status(403).json({ message: 'You cannot rate your own recipe' });
+  }
+
+  const savedRating = await RecipeRating.findOneAndUpdate(
+    { recipe: recipe._id, user: req.user._id },
+    { $set: { rating } },
+    { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+  );
+  return res.json({ rating: savedRating.rating });
+}
+
+export async function deleteRecipeRating(req, res) {
+  const recipe = await Recipe.findOne({ _id: req.params.id, ...publicRecipeFilter }).select('_id');
+  if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
+  const rating = await RecipeRating.findOneAndDelete({ recipe: recipe._id, user: req.user._id });
+  if (!rating) return res.status(404).json({ message: 'Rating not found' });
+  return res.status(204).send();
 }
 
 export async function createRecipe(req, res) {
