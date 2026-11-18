@@ -118,7 +118,7 @@ Thực hiện theo thứ tự đã thống nhất. Mỗi tính năng dùng branc
 - [x] Làm rõ và xử lý an toàn việc tạo shopping list từ meal plan để nguyên liệu người dùng thêm thủ công không bị mất ngoài ý muốn.
 - [x] Ngăn response tìm kiếm công thức/nguyên liệu cũ ghi đè kết quả ứng với lựa chọn hiện tại.
 - [x] Rà soát các hợp đồng Swagger V2 so với controller; Postman collection và apidoc được ghi rõ là tài liệu V1 nếu chưa cập nhật.
-- [ ] Chạy lint/build và kiểm thử các luồng V2 trên môi trường production.
+- [x] Chạy lint/build và kiểm thử các luồng V2 trên môi trường production.
 - [ ] Chỉ phát hành V2 sau khi các tính năng trong phạm vi được test và merge.
 
 ## Nhật ký làm việc
