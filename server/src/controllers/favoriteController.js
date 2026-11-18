@@ -1,16 +1,18 @@
 import Favorite from '../models/Favorite.js';
 import Recipe from '../models/Recipe.js';
+import { publicRecipeFilter } from '../utils/recipeVisibility.js';
 
 export async function listFavorites(req, res) {
   const favorites = await Favorite.find({ user: req.user._id })
-    .populate('recipe')
+    .populate({ path: 'recipe', match: publicRecipeFilter })
     .sort({ createdAt: -1 });
 
-  return res.json({ count: favorites.length, favorites });
+  const publicFavorites = favorites.filter((favorite) => favorite.recipe);
+  return res.json({ count: publicFavorites.length, favorites: publicFavorites });
 }
 
 export async function addFavorite(req, res) {
-  const recipe = await Recipe.findById(req.params.recipeId);
+  const recipe = await Recipe.findOne({ _id: req.params.recipeId, ...publicRecipeFilter });
   if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
 
   const existingFavorite = await Favorite.findOne({ user: req.user._id, recipe: recipe._id });

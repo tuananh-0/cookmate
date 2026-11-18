@@ -1,4 +1,6 @@
-# CookMate API Collection
+# CookMate API Collection (V1)
+
+This collection covers the V1 endpoints only. For the current V2 API contract, use the public Swagger UI linked below.
 
 Postman Local Mode no longer loads JSON collections from this workspace folder automatically. Import the collection file manually:
 
@@ -16,8 +18,8 @@ Postman Local Mode no longer loads JSON collections from this workspace folder a
 
 The recipe endpoint can return `{"count":0,"recipes":[]}` when no recipes have been added; that is a successful response. Use the health and recipe-list requests for safe production smoke checks. Requests that create, update, or delete data should only be sent with intentional test data and an authorized account.
 
-The collection is kept in Postman Collection v2.1 JSON format so it can be imported into Postman and published as public API documentation.
+The collection is kept in Postman Collection v2.1 JSON format for importing into Postman and running V1 requests.
 
 ## apidoc-style source
 
-Endpoint annotations using the `@api` comment format are maintained in `docs/api.apidoc.js`. They document methods, paths, parameters, request bodies, responses, authentication, and errors. This is the source reference; the Postman collection remains the runnable request set.
+Endpoint annotations using the `@api` comment format are maintained in `docs/api.apidoc.js`. They document V1 methods, paths, parameters, request bodies, responses, authentication, and errors. Swagger is the current V2 reference; the Postman collection remains the runnable V1 request set.

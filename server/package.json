@@ -7,6 +7,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed:recipes": "node src/seed/seedRecipes.js",
+    "seed:ratings": "node src/seed/seedRecipeRatings.js",
     "lint": "eslint src"
   },
   "dependencies": {

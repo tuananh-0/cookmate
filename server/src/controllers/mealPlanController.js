@@ -1,5 +1,6 @@
 import MealPlan from '../models/MealPlan.js';
 import Recipe from '../models/Recipe.js';
+import { publicRecipeFilter } from '../utils/recipeVisibility.js';
 
 export async function listMealPlans(req, res) {
   const filter = { user: req.user._id };
@@ -9,13 +10,17 @@ export async function listMealPlans(req, res) {
     if (req.query.dateTo) filter.date.$lte = req.query.dateTo;
   }
 
-  const mealPlans = await MealPlan.find(filter).populate('recipe').sort({ date: 1, mealType: 1 });
+  const mealPlans = await MealPlan.find(filter)
+    .populate({ path: 'recipe', match: publicRecipeFilter })
+    .sort({ date: 1, mealType: 1 });
+  // Keep the user's slot visible when its recipe is pending or deleted. The
+  // populate match keeps unpublished recipe data private while allowing removal.
   return res.json({ count: mealPlans.length, mealPlans });
 }
 
 export async function createMealPlan(req, res) {
   const { date, mealType, recipeId, note } = req.body;
-  const recipe = await Recipe.findById(recipeId);
+  const recipe = await Recipe.findOne({ _id: recipeId, ...publicRecipeFilter });
   if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
 
   const existing = await MealPlan.findOne({ user: req.user._id, date, mealType });
@@ -35,7 +40,7 @@ export async function updateMealPlan(req, res) {
   );
 
   if (Object.hasOwn(req.body, 'recipeId')) {
-    const recipe = await Recipe.findById(req.body.recipeId);
+    const recipe = await Recipe.findOne({ _id: req.body.recipeId, ...publicRecipeFilter });
     if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
     updates.recipe = req.body.recipeId;
   }
@@ -48,7 +53,7 @@ export async function updateMealPlan(req, res) {
     { _id: req.params.id, user: req.user._id },
     updates,
     { new: true, runValidators: true },
-  ).populate('recipe');
+  ).populate({ path: 'recipe', match: publicRecipeFilter });
   if (!mealPlan) return res.status(404).json({ message: 'Meal plan not found' });
   return res.json({ mealPlan });
 }

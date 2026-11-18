@@ -405,3 +405,110 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Project owner xác nhận PR #34 đã merge vào `develop`; merge commit `91a485e`. Đồng bộ local `develop` và đánh dấu hoàn thành các checklist recipe detail, recipe CRUD và loading/error/empty/session expiration. Việc trình bày V2 vẫn để sau khi rà xong các đầu việc V1 còn thiết yếu.
 - Project owner xác nhận đã hoàn tất chuẩn bị tài khoản demo và seed 100 công thức lên MongoDB Atlas; kiểm tra dữ liệu hiển thị trên website và test quyền admin thành công. Cập nhật checklist mục demo thành `[x]`.
 - Project owner xác nhận phần layout/navbar/responsive cơ bản, Login/Register/JWT/logout và Home/recipe list/card đã hoàn thành. Cập nhật các mục checklist tương ứng thành `[x]`; không phát sinh thay đổi code trong phiên này.
+
+### 2026-11-15 — Chốt thứ tự và tạo checklist tính năng V2
+
+- Project owner đồng ý thứ tự triển khai: (1) tìm công thức theo nguyên liệu sẵn có, (2) user gửi công thức và admin duyệt trước khi publish, (3) đánh giá 1–5 sao và xếp hạng công thức.
+- Thêm đầu việc và tiêu chí kiểm tra cho từng giai đoạn V2 vào `PROJECT_CHECKLIST.md`, gồm quyền truy cập, trạng thái duyệt, nguyên liệu thiếu, shopping list và chống thiên lệch xếp hạng do ít lượt đánh giá.
+- Chưa bắt đầu code V2; các mục giữ `[ ]`.
+
+### 2026-11-15 — V2.1 tìm công thức theo nguyên liệu — đang thực hiện
+
+- Tạo branch `feature/v2-ingredient-recipe-match` từ `develop` mới nhất tại `6c894f3`.
+- Chuyển V2.1 sang `[~]`; thống nhất so khớp tên nguyên liệu chính xác sau khi chuẩn hóa chữ hoa/thường và khoảng trắng, không fuzzy-match để tránh gợi ý sai nguyên liệu.
+- Phạm vi phiên này: API gợi ý nguyên liệu và tìm món, hiển thị phần khớp/còn thiếu, thêm nguyên liệu còn thiếu vào shopping list mà không tạo bản trùng; cập nhật Swagger và hướng dẫn tự kiểm thử.
+- Chưa commit/push. Sau kiểm tra nội bộ sẽ chờ project owner tự test trước khi commit/push.
+
+## 2026-11-15 — Cook with what you have (V2.1)
+
+- Continued implementation on `feature/v2-ingredient-recipe-match`, created from latest `develop` (`6c894f3`).
+- Added public API to list recipe ingredients and rank recipes by exact normalized ingredient-name matches, returning matched and missing ingredients.
+- Added authenticated shopping-list endpoint that adds missing ingredients while skipping normalized duplicates.
+- Added the `/ingredient-search` page with ingredient suggestions/manual entry, match details, loading/error states, and shopping-list integration for signed-in users.
+- Updated Swagger docs, including request/response shape for recipe matching; corrected a duplicate path entry.
+- Internal lint/build and runtime documentation checks are pending in this session. User manual testing is required before commit/push.
+- Internal verification passed: `npm.cmd run lint` and `npm.cmd run build` in `client/`; `npm.cmd run lint` in `server/`; OpenAPI document loads and includes all three new endpoints; `git diff --check` passed.
+
+## 2026-11-15 — V2.1 merged; V2.2 started
+
+- Confirmed user-reported successful merge of PR #36 into `develop`; fast-forwarded local `develop` to `dd1f2d6`.
+- Marked V2.1 ingredient matching complete in `PROJECT_CHECKLIST.md` after user test, commit, push, and merge.
+- Created `feature/v2-recipe-submissions-moderation` from the updated `develop` for V2.2.
+- Started V2.2: user-submitted recipes must remain private/pending until admin approval; public endpoints expose approved recipes only, while legacy V1 recipes remain public.
+- Implementation, user verification, merge, and V2.2 completion are recorded below.
+
+### V2.2 — Recipe submissions and admin moderation (merged)
+
+- Added recipe publication statuses (`pending`, `approved`, `rejected`) and review metadata. Legacy documents without a status remain public so existing V1 data stays visible.
+- Added authenticated recipe submission, owner-only status listing, admin review queue, and approve/reject endpoint with optional feedback.
+- Public recipe list/detail, ingredient suggestions/matching, favorites, and meal-plan reads/writes filter out unpublished recipes. Editing a published recipe as admin sends it back to pending review.
+- Added user submission, status tracking, and admin review pages; updated Swagger and seed behavior.
+- Added clear client/API validation for ingredient lines and non-empty instruction steps.
+- Internal checks passed: client `npm.cmd run lint` and `npm.cmd run build`; server `npm.cmd run lint`; OpenAPI smoke check confirmed all moderation routes and status values; `git diff --check` passed (only line-ending normalization notices).
+- Project owner confirmed the manual V2.2 submission/moderation test passed. Committed as `293692a`, pushed `feature/v2-recipe-submissions-moderation`, and merged via PR #37.
+
+### 2026-11-18 — V2.2 merged; V2.3 started
+
+- Project owner confirmed V2.2 was merged. Remote `develop` contains merge commit `976e435` (PR #37); local `develop` was fast-forwarded to it.
+- Marked all V2.2 checklist items complete after the user-reported successful test and merge.
+- Created `feature/v2-recipe-ratings` from the updated `develop` and started the V2.3 rating and recipe ranking task.
+- Plan: one rating per authenticated user and published recipe, allow editing/removing one's rating, block self-rating, show average/count, and use a confidence-weighted score for rating sort.
+- No V2.3 commit or push until internal checks pass and the project owner tests the feature.
+
+### 2026-11-18 — V2.3 ratings implementation ready for user testing
+
+- Added a unique per-user/per-recipe rating model, validated to integer values 1–5.
+- Added authenticated endpoints to read one's own rating, create/update it, and remove it. Rating is restricted to published recipes; authors cannot rate their own recipes.
+- Added aggregate rating average/count to recipe list and detail responses, plus a confidence-weighted `sort=rating` option so small vote counts do not dominate.
+- Added star selection, update/remove actions, average/count display, and a Top rated sort option in the frontend.
+- Updated Swagger and V2.3 checklist tracking.
+- Internal checks passed: client lint/build, server lint, schema validation rejects 0/6/fractional ratings, OpenAPI paths present, and `git diff --check` passed.
+- Project owner reported that the rating feature tested successfully.
+- Based on the follow-up UI feedback, grouped secondary navigation under a responsive “My CookMate” dropdown, keeping Recipes and By ingredients visible and showing admin links only to admins.
+- Styled “My CookMate” as a green pill button with clear hover, focus, and open states, plus a rotating dropdown indicator.
+- Client lint/build, server lint, and `git diff --check` passed again after the navbar updates. Waiting for the user's visual/responsive navbar check before committing the branch; no commit or push yet.
+- Added consistent hover feedback to primary and secondary actions, navigation links, recipe cards, list/review rows, ingredient chips, rating stars, and inline links. Added a shared visible keyboard-focus outline and kept disabled buttons from receiving active hover styling.
+- Verified frontend lint/build and whitespace checks after these hover updates. Waiting for the project owner to check the interface in browser before any commit or push.
+- Added an opt-in `seed:ratings` script for explicitly selected existing demo users. It generates deterministic 3–5 star sample ratings for published recipes, skips self-ratings, and preserves any existing ratings. The script warns that generated ratings are synthetic; it has not been run against Atlas or any database.
+- Project owner confirmed the navbar/hover design is acceptable and authorized commit/push/PR. Checks passed; committed as `dcb26dd` (`feat(ratings): add recipe reviews and ranking`) and pushed `feature/v2-recipe-ratings`.
+- PR creation via `gh` initially returned HTTP 401, but the project owner subsequently created and merged PR #38 into `develop`.
+- Fast-forwarded local `develop` to merge commit `6b46644` (PR #38) and marked V2.3 complete in `PROJECT_CHECKLIST.md` after the owner confirmed the merge.
+
+### 2026-11-18 — Cập nhật README và Swagger cho V2
+
+- Created `feature/docs-v2-guide` from latest `origin/develop`, carrying forward the pending checklist/work-log updates for merged V2.3.
+- Updated README with V2 features, role/publication rules, key endpoint table, local configuration, and safe demo-seeding steps for recipes and synthetic ratings.
+- Updated Swagger's API overview and ingredient-match behavior description; cleared placeholder seed emails from `.env.example`.
+- Documentation checks are in progress. No commit/push until review and verification are complete.
+- Added a README environment requirements table using local Node/npm versions, Render's observed Node 24 runtime, and dependency versions resolved in the lockfiles. Changed local install instructions to `npm ci` for reproducible installs.
+- Reviewed the independent V2 readiness audit against current controllers and UI. Confirmed: meal plans whose recipe becomes unpublished are filtered from list responses but still reserve their unique user/date/meal slot; list generation deletes all existing shopping items before rebuilding; recipe and ingredient searches can apply stale responses; and Swagger/apidoc advertised unsupported `name`/`quantity` PATCH fields.
+- Corrected the ingredient-match ranking description in Swagger to match ratio-first ordering, corrected the shopping-item PATCH contract and 400 response, and identified Swagger as the V2 reference while labeling apidoc/Postman as V1 coverage in README.
+- Added the confirmed release blockers and follow-up checks to the V2 checklist. The application behavior findings remain unimplemented and are pending separate code work plus user verification.
+- Internal verification passed: client lint and production build; server lint; OpenAPI loads with 21 paths and exposes the corrected match-order and PATCH schema; `git diff --check` passed. No commit or push yet; awaiting project-owner review/test.
+
+### 2026-11-18 — Fixes for V2 release blockers (awaiting user test)
+
+- Kept meal-plan slots in the authenticated user's list when their recipe is unpublished or unavailable. Population still filters recipe details, while the UI explains the unavailable item and keeps its Remove action available.
+- Changed shopping-list generation to add only missing meal-plan ingredients. Existing manual items, quantities, and checked states remain intact; repeated generation does not create duplicate names. Updated the UI and API documentation to describe additive behavior.
+- Made recipe-list requests ignore responses from stale search/filter/sort selections. Ingredient matching now uses a request sequence guard and invalidates pending responses when the selected ingredients change.
+- Updated release checklist statuses to `[~]`; completion still requires user verification, commit, and PR merge.
+- Internal checks passed: client lint and production build, server lint, OpenAPI contract check (21 paths), and `git diff --check`. Browser/manual verification is pending. No commit or push before the project owner confirms testing.
+
+### 2026-11-18 — Follow-up V2 contract review (user verified)
+
+- Project owner confirmed that the meal-plan, additive shopping-list, and stale-search fixes passed manual testing.
+- Corrected Swagger's admin recipe PATCH contract: it now uses a partial-update schema instead of requiring all fields as recipe creation does. The schema lists only editable fields and disallows moderation metadata from being changed through that endpoint.
+- Added a dedicated recipe input schema for admin creation and user submissions, keeping server-managed publication status and review metadata out of request examples. Added rating average/count to the recipe response schema.
+- Labeled the Postman collection and its README as V1 coverage and directed readers to Swagger for the V2 contract.
+- Internal verification passed: client lint/build, server lint, OpenAPI schema/path smoke check (21 paths), and `git diff --check`.
+- Tried to inspect the deployed health, recipe-list, and Swagger URLs with the available web tool; those URLs were inaccessible from this environment. Production flow verification remains pending and must be checked by the project owner in a browser/Postman. No commit or push has been made.
+- Project owner confirmed the Swagger changes tested successfully. Checklist tasks remain `[~]` until this branch's PR is merged.
+- Project owner confirmed the PR was merged. Updated the five checklist items covered by the PR to `[x]`. Local `git fetch origin` could not update refs because writing `.git/FETCH_HEAD` is denied in this workspace, so local `develop` still needs syncing in a writable Git environment.
+- Ran an isolated end-to-end API smoke pass against a temporary local MongoDB database: 66 assertions passed across registration/login/session errors, role restrictions, recipe CRUD/search, ingredient matching, submission/approval/rejection privacy, ratings and aggregates, favorites, meal-plan duplicate slots and unpublished-recipe cleanup, and additive/idempotent shopping-list generation. Dropped the temporary database and stopped the test server afterward.
+- Client lint/build and server lint passed again. Production GET requests could not be completed from this environment: PowerShell HTTPS returned a closed connection and `curl.exe` Schannel reported `SEC_E_NO_CREDENTIALS`; the web viewer also could not access the URLs. The V2 production checklist item remains `[ ]` because this was local API verification, not a live production check.
+
+### 2026-11-18 — Make My CookMate menu groups stand out
+
+- Styled the My kitchen, Contribute, and Administration labels with a pale green background, darker green text, a left accent bar, and more spacing so menu groups are easier to scan.
+- A new feature branch could not be created because this workspace denies writes to `.git/refs`; the CSS change remains uncommitted on the current checkout.
+- Client lint and production build passed; `git diff --check` passed.
