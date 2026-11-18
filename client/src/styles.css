@@ -26,7 +26,7 @@ button:disabled { cursor: not-allowed; }
 .nav-menu-panel { position: absolute; top: calc(100% + 14px); right: -20px; display: grid; min-width: 205px; gap: 2px; border: 1px solid #e5ebe2; border-radius: 14px; padding: 10px; background: #fff; box-shadow: 0 16px 34px #21352a1c; }
 .nav-menu-panel a { border-radius: 8px; padding: 9px 10px; white-space: nowrap; }
 .nav-menu-panel a:hover { color: #285c36; background: #f1f6ee; }
-.nav-menu-heading { margin: 6px 10px 2px; color: #98a298; font-size: .67rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.nav-menu-heading { display: flex; align-items: center; margin: 8px 8px 3px; border-left: 3px solid #347746; border-radius: 0 6px 6px 0; padding: 5px 8px; color: #285c36; background: #f1f6ee; font-size: .7rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
 .nav-cta, .primary-button { border: 0; border-radius: 999px; background: #347342; color: #fff; cursor: pointer; font-weight: 700; }
 .nav-cta { padding: 11px 17px; }
 .user-greeting { color: #347342; font-weight: 700; }

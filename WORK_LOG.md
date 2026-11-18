@@ -503,3 +503,12 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Internal verification passed: client lint/build, server lint, OpenAPI schema/path smoke check (21 paths), and `git diff --check`.
 - Tried to inspect the deployed health, recipe-list, and Swagger URLs with the available web tool; those URLs were inaccessible from this environment. Production flow verification remains pending and must be checked by the project owner in a browser/Postman. No commit or push has been made.
 - Project owner confirmed the Swagger changes tested successfully. Checklist tasks remain `[~]` until this branch's PR is merged.
+- Project owner confirmed the PR was merged. Updated the five checklist items covered by the PR to `[x]`. Local `git fetch origin` could not update refs because writing `.git/FETCH_HEAD` is denied in this workspace, so local `develop` still needs syncing in a writable Git environment.
+- Ran an isolated end-to-end API smoke pass against a temporary local MongoDB database: 66 assertions passed across registration/login/session errors, role restrictions, recipe CRUD/search, ingredient matching, submission/approval/rejection privacy, ratings and aggregates, favorites, meal-plan duplicate slots and unpublished-recipe cleanup, and additive/idempotent shopping-list generation. Dropped the temporary database and stopped the test server afterward.
+- Client lint/build and server lint passed again. Production GET requests could not be completed from this environment: PowerShell HTTPS returned a closed connection and `curl.exe` Schannel reported `SEC_E_NO_CREDENTIALS`; the web viewer also could not access the URLs. The V2 production checklist item remains `[ ]` because this was local API verification, not a live production check.
+
+### 2026-11-18 — Make My CookMate menu groups stand out
+
+- Styled the My kitchen, Contribute, and Administration labels with a pale green background, darker green text, a left accent bar, and more spacing so menu groups are easier to scan.
+- A new feature branch could not be created because this workspace denies writes to `.git/refs`; the CSS change remains uncommitted on the current checkout.
+- Client lint and production build passed; `git diff --check` passed.
