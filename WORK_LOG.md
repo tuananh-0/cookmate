@@ -506,9 +506,17 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Project owner confirmed the PR was merged. Updated the five checklist items covered by the PR to `[x]`. Local `git fetch origin` could not update refs because writing `.git/FETCH_HEAD` is denied in this workspace, so local `develop` still needs syncing in a writable Git environment.
 - Ran an isolated end-to-end API smoke pass against a temporary local MongoDB database: 66 assertions passed across registration/login/session errors, role restrictions, recipe CRUD/search, ingredient matching, submission/approval/rejection privacy, ratings and aggregates, favorites, meal-plan duplicate slots and unpublished-recipe cleanup, and additive/idempotent shopping-list generation. Dropped the temporary database and stopped the test server afterward.
 - Client lint/build and server lint passed again. Production GET requests could not be completed from this environment: PowerShell HTTPS returned a closed connection and `curl.exe` Schannel reported `SEC_E_NO_CREDENTIALS`; the web viewer also could not access the URLs. The V2 production checklist item remains `[ ]` because this was local API verification, not a live production check.
+- Project owner confirmed the V2 production flow checks are complete; updated the corresponding checklist item to `[x]` based on that confirmation.
 
 ### 2026-11-18 — Make My CookMate menu groups stand out
 
 - Styled the My kitchen, Contribute, and Administration labels with a pale green background, darker green text, a left accent bar, and more spacing so menu groups are easier to scan.
 - A new feature branch could not be created because this workspace denies writes to `.git/refs`; the CSS change remains uncommitted on the current checkout.
 - Client lint and production build passed; `git diff --check` passed.
+
+### 2026-11-18 — Mở rộng danh sách endpoint trong README
+
+- Thay bảng chỉ liệt kê endpoint V2 bằng danh sách toàn bộ 30 endpoint API hiện được đăng ký trong backend: health, authentication, recipes, gửi/duyệt công thức, ratings, favorites, meal plans và shopping list.
+- Ghi rõ method, path, nhóm chức năng và quyền truy cập; thêm hướng dẫn bearer token và link Swagger production.
+- Đối chiếu danh sách với các Express route trong `server/src/app.js` và `server/src/routes/`.
+- Chưa commit hoặc push thay đổi.
