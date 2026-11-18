@@ -471,4 +471,35 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Verified frontend lint/build and whitespace checks after these hover updates. Waiting for the project owner to check the interface in browser before any commit or push.
 - Added an opt-in `seed:ratings` script for explicitly selected existing demo users. It generates deterministic 3–5 star sample ratings for published recipes, skips self-ratings, and preserves any existing ratings. The script warns that generated ratings are synthetic; it has not been run against Atlas or any database.
 - Project owner confirmed the navbar/hover design is acceptable and authorized commit/push/PR. Checks passed; committed as `dcb26dd` (`feat(ratings): add recipe reviews and ranking`) and pushed `feature/v2-recipe-ratings`.
-- PR creation via `gh` is pending because GitHub CLI authentication returned HTTP 401. The branch push succeeded; PR should target `develop` once GitHub CLI is reauthenticated.
+- PR creation via `gh` initially returned HTTP 401, but the project owner subsequently created and merged PR #38 into `develop`.
+- Fast-forwarded local `develop` to merge commit `6b46644` (PR #38) and marked V2.3 complete in `PROJECT_CHECKLIST.md` after the owner confirmed the merge.
+
+### 2026-11-18 — Cập nhật README và Swagger cho V2
+
+- Created `feature/docs-v2-guide` from latest `origin/develop`, carrying forward the pending checklist/work-log updates for merged V2.3.
+- Updated README with V2 features, role/publication rules, key endpoint table, local configuration, and safe demo-seeding steps for recipes and synthetic ratings.
+- Updated Swagger's API overview and ingredient-match behavior description; cleared placeholder seed emails from `.env.example`.
+- Documentation checks are in progress. No commit/push until review and verification are complete.
+- Added a README environment requirements table using local Node/npm versions, Render's observed Node 24 runtime, and dependency versions resolved in the lockfiles. Changed local install instructions to `npm ci` for reproducible installs.
+- Reviewed the independent V2 readiness audit against current controllers and UI. Confirmed: meal plans whose recipe becomes unpublished are filtered from list responses but still reserve their unique user/date/meal slot; list generation deletes all existing shopping items before rebuilding; recipe and ingredient searches can apply stale responses; and Swagger/apidoc advertised unsupported `name`/`quantity` PATCH fields.
+- Corrected the ingredient-match ranking description in Swagger to match ratio-first ordering, corrected the shopping-item PATCH contract and 400 response, and identified Swagger as the V2 reference while labeling apidoc/Postman as V1 coverage in README.
+- Added the confirmed release blockers and follow-up checks to the V2 checklist. The application behavior findings remain unimplemented and are pending separate code work plus user verification.
+- Internal verification passed: client lint and production build; server lint; OpenAPI loads with 21 paths and exposes the corrected match-order and PATCH schema; `git diff --check` passed. No commit or push yet; awaiting project-owner review/test.
+
+### 2026-11-18 — Fixes for V2 release blockers (awaiting user test)
+
+- Kept meal-plan slots in the authenticated user's list when their recipe is unpublished or unavailable. Population still filters recipe details, while the UI explains the unavailable item and keeps its Remove action available.
+- Changed shopping-list generation to add only missing meal-plan ingredients. Existing manual items, quantities, and checked states remain intact; repeated generation does not create duplicate names. Updated the UI and API documentation to describe additive behavior.
+- Made recipe-list requests ignore responses from stale search/filter/sort selections. Ingredient matching now uses a request sequence guard and invalidates pending responses when the selected ingredients change.
+- Updated release checklist statuses to `[~]`; completion still requires user verification, commit, and PR merge.
+- Internal checks passed: client lint and production build, server lint, OpenAPI contract check (21 paths), and `git diff --check`. Browser/manual verification is pending. No commit or push before the project owner confirms testing.
+
+### 2026-11-18 — Follow-up V2 contract review (user verified)
+
+- Project owner confirmed that the meal-plan, additive shopping-list, and stale-search fixes passed manual testing.
+- Corrected Swagger's admin recipe PATCH contract: it now uses a partial-update schema instead of requiring all fields as recipe creation does. The schema lists only editable fields and disallows moderation metadata from being changed through that endpoint.
+- Added a dedicated recipe input schema for admin creation and user submissions, keeping server-managed publication status and review metadata out of request examples. Added rating average/count to the recipe response schema.
+- Labeled the Postman collection and its README as V1 coverage and directed readers to Swagger for the V2 contract.
+- Internal verification passed: client lint/build, server lint, OpenAPI schema/path smoke check (21 paths), and `git diff --check`.
+- Tried to inspect the deployed health, recipe-list, and Swagger URLs with the available web tool; those URLs were inaccessible from this environment. Production flow verification remains pending and must be checked by the project owner in a browser/Postman. No commit or push has been made.
+- Project owner confirmed the Swagger changes tested successfully. Checklist tasks remain `[~]` until this branch's PR is merged.

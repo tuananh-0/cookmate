@@ -103,17 +103,21 @@ Thực hiện theo thứ tự đã thống nhất. Mỗi tính năng dùng branc
 - [x] Yêu cầu duyệt lại khi nội dung công thức đã publish bị sửa.
 - [x] Kiểm tra quyền sở hữu, quyền admin, trạng thái pending/rejected và tính riêng tư của công thức chưa duyệt.
 
-### V2.3 — Đánh giá sao và xếp hạng công thức `[~]`
+### V2.3 — Đánh giá sao và xếp hạng công thức `[x]`
 
-- [ ] Tạo dữ liệu đánh giá 1–5 sao, tối đa một đánh giá cho mỗi user/công thức; cho phép sửa đánh giá.
-- [ ] Chỉ user đăng nhập được đánh giá công thức đã publish; không cho tác giả tự đánh giá công thức của mình.
-- [ ] Hiển thị điểm trung bình và số lượt đánh giá trên danh sách/chi tiết công thức.
-- [ ] Thêm sắp xếp theo đánh giá, tránh để công thức chỉ có một lượt đánh giá tự động đứng đầu.
-- [ ] Kiểm tra quyền, điểm hợp lệ, cập nhật/xóa đánh giá và công thức chưa duyệt.
+- [x] Tạo dữ liệu đánh giá 1–5 sao, tối đa một đánh giá cho mỗi user/công thức; cho phép sửa đánh giá.
+- [x] Chỉ user đăng nhập được đánh giá công thức đã publish; không cho tác giả tự đánh giá công thức của mình.
+- [x] Hiển thị điểm trung bình và số lượt đánh giá trên danh sách/chi tiết công thức.
+- [x] Thêm sắp xếp theo đánh giá, tránh để công thức chỉ có một lượt đánh giá tự động đứng đầu.
+- [x] Kiểm tra quyền, điểm hợp lệ, cập nhật/xóa đánh giá và công thức chưa duyệt.
 
 ### V2 — Hoàn thiện trước khi phát hành
 
-- [ ] Cập nhật tài liệu API và README cho các tính năng V2.
+- [~] Cập nhật tài liệu API và README cho các tính năng V2.
+- [~] Sửa lỗi meal plan bị ẩn nhưng vẫn khóa slot khi recipe được đưa về `pending`; bảo đảm chủ sở hữu có thể xóa lịch mà không lộ recipe chưa duyệt.
+- [~] Làm rõ và xử lý an toàn việc tạo shopping list từ meal plan để nguyên liệu người dùng thêm thủ công không bị mất ngoài ý muốn.
+- [~] Ngăn response tìm kiếm công thức/nguyên liệu cũ ghi đè kết quả ứng với lựa chọn hiện tại.
+- [~] Rà soát các hợp đồng Swagger V2 so với controller; Postman collection và apidoc được ghi rõ là tài liệu V1 nếu chưa cập nhật.
 - [ ] Chạy lint/build và kiểm thử các luồng V2 trên môi trường production.
 - [ ] Chỉ phát hành V2 sau khi các tính năng trong phạm vi được test và merge.
 
