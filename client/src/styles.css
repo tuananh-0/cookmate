@@ -45,6 +45,16 @@ h1 { margin: 12px 0 20px; max-width: 650px; font-size: clamp(3rem, 7vw, 5.6rem);
 .mini-recipe small { color: #748077; }
 .content-page, .auth-page { flex: 1; padding-top: 80px; }
 .content-page h1, .auth-page h1 { font-size: clamp(2.8rem, 6vw, 4.5rem); }
+.not-found-page { flex: 1; display: grid; place-items: center; padding-top: 48px; padding-bottom: 64px; }
+.not-found-card { width: min(100%, 680px); border: 1px solid #e5ebe2; border-radius: 24px; padding: clamp(26px, 6vw, 54px); background: #fff; box-shadow: 0 18px 50px #21352a0d; }
+.not-found-card .eyebrow { margin: 0; }
+.not-found-code { margin: 14px 0 0; color: #347342; font-size: clamp(5rem, 18vw, 9rem); font-weight: 850; letter-spacing: -.09em; line-height: .9; }
+.not-found-card h1 { margin: 22px 0 12px; font-size: clamp(2rem, 6vw, 3.2rem); letter-spacing: -.06em; line-height: 1.05; }
+.not-found-description, .not-found-hint { color: #69766c; line-height: 1.65; }
+.not-found-description code { border-radius: 6px; padding: 2px 6px; color: #285c36; background: #f1f6ee; overflow-wrap: anywhere; }
+.not-found-hint a { color: #285c36; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+.not-found-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.not-found-actions .primary-button, .not-found-actions .secondary-button { display: inline-flex; align-items: center; justify-content: center; margin: 0; }
 .muted { color: #69766c; }
 .recipe-toolbar { display: flex; gap: 12px; margin: 28px 0; }
 .recipe-toolbar input, .recipe-toolbar select { border: 1px solid #d8ded5; border-radius: 10px; padding: 12px 14px; font: inherit; background: white; }
