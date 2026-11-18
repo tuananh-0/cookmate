@@ -38,7 +38,7 @@ export async function generateShoppingList(req, res) {
 
   for (const mealPlan of mealPlans) {
     for (const ingredient of mealPlan.recipe?.ingredients || []) {
-      const key = ingredient.name.trim().toLowerCase();
+      const key = normalizeIngredientName(ingredient.name);
       const current = ingredients.get(key);
       ingredients.set(key, {
         name: current?.name || ingredient.name.trim(),
@@ -52,18 +52,19 @@ export async function generateShoppingList(req, res) {
   }
 
   const existingItems = await ShoppingItem.find({ user: req.user._id });
-  const checkedByName = new Map(
-    existingItems.map((item) => [item.name.trim().toLowerCase(), item.checked]),
+  const existingByName = new Map(
+    existingItems.map((item) => [normalizeIngredientName(item.name), item]),
   );
+  const additions = [...ingredients.entries()]
+    .filter(([key]) => !existingByName.has(normalizeIngredientName(key)))
+    .map(([, item]) => ({ ...item, user: req.user._id }));
 
-  await ShoppingItem.deleteMany({ user: req.user._id });
-  const items = await ShoppingItem.insertMany(
-    [...ingredients.entries()].map(([key, item]) => ({
-      ...item,
-      checked: checkedByName.get(key) || false,
-      user: req.user._id,
-    })),
-  );
+  // Generation is additive: preserve manually added items, checked state, and
+  // quantities already on the list. Repeated generation stays idempotent.
+  const createdItems = additions.length ? await ShoppingItem.insertMany(additions) : [];
+  const items = [...existingItems, ...createdItems].sort((first, second) => (
+    Number(first.checked) - Number(second.checked) || first.name.localeCompare(second.name, 'vi')
+  ));
   return res.status(201).json({ count: items.length, items });
 }
 

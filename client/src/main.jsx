@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Route, Routes, useParams, useSearchParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import api from './lib/api.js';
@@ -23,7 +23,25 @@ function RatingSummary({ recipe }) {
 
 function RecipesPage() {
   const [recipes, setRecipes] = useState([]); const [search, setSearch] = useState(''); const [category, setCategory] = useState(''); const [sort, setSort] = useState('newest'); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
-  useEffect(() => { const timer = setTimeout(async () => { setLoading(true); try { const params = new URLSearchParams(); if (search.trim()) params.set('search', search.trim()); if (category) params.set('category', category); if (sort === 'rating') params.set('sort', sort); const { data } = await api.get(`/recipes?${params.toString()}`); setRecipes(data.recipes); setError(''); } catch { setError('Unable to load recipes. Please check that the API is running.'); } finally { setLoading(false); } }, 250); return () => clearTimeout(timer); }, [search, category, sort]);
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (search.trim()) params.set('search', search.trim());
+        if (category) params.set('category', category);
+        if (sort === 'rating') params.set('sort', sort);
+        const { data } = await api.get(`/recipes?${params.toString()}`);
+        if (active) { setRecipes(data.recipes); setError(''); }
+      } catch {
+        if (active) setError('Unable to load recipes. Please check that the API is running.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    }, 250);
+    return () => { active = false; clearTimeout(timer); };
+  }, [search, category, sort]);
   const rankedRecipes = sort === 'rating' ? recipes : [...recipes].sort((a, b) => { const query = search.trim().toLowerCase(); const aStarts = query && a.title.toLowerCase().startsWith(query); const bStarts = query && b.title.toLowerCase().startsWith(query); return Number(bStarts) - Number(aStarts); });
   const suggestions = search.trim() ? rankedRecipes.filter((recipe) => recipe.title.toLowerCase().includes(search.trim().toLowerCase())).slice(0, 5) : [];
   return <main className="page-container content-page"><p className="eyebrow">DISCOVER</p><h1>Recipes</h1><div className="recipe-toolbar"><div className="search-box"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search recipes..." aria-label="Search recipes" />{suggestions.length > 0 && !loading && <div className="search-suggestions" role="listbox">{suggestions.map((recipe) => <button type="button" key={recipe._id} onClick={() => setSearch(recipe.title)}>{recipe.title}<small>{recipe.category}</small></button>)}</div>}</div><select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category"><option value="">All categories</option><option value="Vietnamese">Vietnamese</option><option value="Italian">Italian</option><option value="Healthy">Healthy</option><option value="Japanese">Japanese</option><option value="Breakfast">Breakfast</option><option value="Vegetarian">Vegetarian</option></select><select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort recipes"><option value="newest">Newest</option><option value="rating">Top rated</option></select></div>{loading && <p className="muted">Loading recipes...</p>}{error && <p className="form-error">{error}</p>}{!loading && !error && rankedRecipes.length === 0 && <p className="muted">No recipes found.</p>}<div className="recipe-grid">{rankedRecipes.map((recipe) => <Link className="recipe-card" to={`/recipes/${recipe._id}`} key={recipe._id}><div className="recipe-image">🍲</div><div className="recipe-card-body"><span className="recipe-category">{recipe.category}</span><h2>{recipe.title}</h2><p>{recipe.description}</p><div className="recipe-card-meta"><small>{recipe.prepTime + recipe.cookTime} min · {recipe.servings} servings</small><RatingSummary recipe={recipe} /></div></div></Link>)}</div></main>;
@@ -41,6 +59,7 @@ function IngredientSearchPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [addingRecipeId, setAddingRecipeId] = useState('');
+  const searchRequestId = useRef(0);
 
   useEffect(() => {
     let active = true;
@@ -63,6 +82,8 @@ function IngredientSearchPage() {
       setError('You can add up to 30 ingredients.');
       return;
     }
+    searchRequestId.current += 1;
+    setSearching(false);
     setSelectedIngredients((current) => [...current, name]);
     setInput('');
     setMatches([]);
@@ -77,17 +98,21 @@ function IngredientSearchPage() {
       setError('Add at least one ingredient to find matching recipes.');
       return;
     }
+    const requestId = ++searchRequestId.current;
+    const searchedIngredients = [...selectedIngredients];
     setSearching(true);
     setHasSearched(true);
     setError('');
     setMessage('');
     try {
-      const { data } = await api.post('/recipes/match', { ingredients: selectedIngredients });
-      setMatches(data.recipes);
+      const { data } = await api.post('/recipes/match', { ingredients: searchedIngredients });
+      if (requestId === searchRequestId.current) setMatches(data.recipes);
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Unable to find matching recipes. Please try again.');
+      if (requestId === searchRequestId.current) {
+        setError(requestError.response?.data?.message || 'Unable to find matching recipes. Please try again.');
+      }
     } finally {
-      setSearching(false);
+      if (requestId === searchRequestId.current) setSearching(false);
     }
   }
 
@@ -121,7 +146,7 @@ function IngredientSearchPage() {
         <button className="secondary-button" type="submit">Add ingredient</button>
       </div>
       {loadingIngredients && <p className="muted">Loading suggestions...</p>}
-      {!!selectedIngredients.length && <ul className="ingredient-chips" aria-label="Selected ingredients">{selectedIngredients.map((ingredient) => <li className="ingredient-chip" key={ingredient}><span>{ingredient}</span><button type="button" aria-label={`Remove ${ingredient}`} onClick={() => { setSelectedIngredients((current) => current.filter((item) => item !== ingredient)); setMatches([]); }}>×</button></li>)}</ul>}
+      {!!selectedIngredients.length && <ul className="ingredient-chips" aria-label="Selected ingredients">{selectedIngredients.map((ingredient) => <li className="ingredient-chip" key={ingredient}><span>{ingredient}</span><button type="button" aria-label={`Remove ${ingredient}`} onClick={() => { searchRequestId.current += 1; setSearching(false); setSelectedIngredients((current) => current.filter((item) => item !== ingredient)); setMatches([]); setHasSearched(false); setError(''); }}>×</button></li>)}</ul>}
       <button className="primary-button" type="button" onClick={findMatches} disabled={searching || !selectedIngredients.length}>{searching ? 'Finding recipes...' : 'Find matching recipes'}</button>
     </form>
     {error && <p className="form-error" role="alert">{error}</p>}
@@ -404,7 +429,7 @@ function MealPlannerPage() {
   async function addPlan(event) { event.preventDefault(); setError(''); try { await api.post('/meal-plans', form); await loadData(); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to add meal plan.'); } }
   async function removePlan(id) { setError(''); try { await api.delete(`/meal-plans/${id}`); setPlans((current) => current.filter((plan) => plan._id !== id)); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to remove meal plan.'); } }
   if (!token) return <main className="page-container content-page"><p className="form-error">Please log in to use the meal planner.</p><Link to="/login">Go to login →</Link></main>;
-  return <main className="page-container content-page"><p className="eyebrow">PLAN AHEAD</p><h1>Meal planner</h1><form className="planner-form" onSubmit={addPlan}><input required type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} /><select value={form.mealType} onChange={(event) => setForm({ ...form, mealType: event.target.value })}><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option><option value="snack">Snack</option></select><select required value={form.recipeId} onChange={(event) => setForm({ ...form, recipeId: event.target.value })}><option value="">Choose a recipe</option>{recipes.map((recipe) => <option key={recipe._id} value={recipe._id}>{recipe.title}</option>)}</select><button className="primary-button" type="submit">Add meal</button></form>{error && <p className="form-error">{error}</p>}{loading && <p className="muted">Loading meal plans...</p>}{!loading && plans.length === 0 && <p className="muted">No meals planned yet.</p>}<div className="plan-list">{plans.map((plan) => <article className="plan-card" key={plan._id}><div><span className="recipe-category">{plan.mealType}</span><h2>{plan.recipe?.title || 'Recipe unavailable'}</h2><p>{plan.date}</p></div><button className="text-button" type="button" onClick={() => removePlan(plan._id)}>Remove</button></article>)}</div></main>;
+  return <main className="page-container content-page"><p className="eyebrow">PLAN AHEAD</p><h1>Meal planner</h1><form className="planner-form" onSubmit={addPlan}><input required type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} /><select value={form.mealType} onChange={(event) => setForm({ ...form, mealType: event.target.value })}><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option><option value="snack">Snack</option></select><select required value={form.recipeId} onChange={(event) => setForm({ ...form, recipeId: event.target.value })}><option value="">Choose a recipe</option>{recipes.map((recipe) => <option key={recipe._id} value={recipe._id}>{recipe.title}</option>)}</select><button className="primary-button" type="submit">Add meal</button></form>{error && <p className="form-error">{error}</p>}{loading && <p className="muted">Loading meal plans...</p>}{!loading && plans.length === 0 && <p className="muted">No meals planned yet.</p>}<div className="plan-list">{plans.map((plan) => <article className="plan-card" key={plan._id}><div><span className="recipe-category">{plan.mealType}</span><h2>{plan.recipe?.title || 'Recipe unavailable'}</h2><p>{plan.date}</p>{!plan.recipe && <p className="muted">This recipe is under review or unavailable. Remove this plan to use the meal slot again.</p>}</div><button className="text-button" type="button" onClick={() => removePlan(plan._id)}>Remove</button></article>)}</div></main>;
 }
 
 function ShoppingListPage() {
@@ -414,7 +439,7 @@ function ShoppingListPage() {
   async function toggleItem(item) { setError(''); try { const { data } = await api.patch(`/shopping-list/${item._id}`, { checked: !item.checked }); setItems((current) => current.map((currentItem) => currentItem._id === item._id ? data.item : currentItem)); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to update shopping item.'); } }
   async function removeItem(id) { setError(''); try { await api.delete(`/shopping-list/${id}`); setItems((current) => current.filter((item) => item._id !== id)); } catch (requestError) { setError(requestError.response?.data?.message || 'Unable to remove shopping item.'); } }
   if (!token) return <main className="page-container content-page"><p className="form-error">Please log in to use the shopping list.</p><Link to="/login">Go to login →</Link></main>;
-  return <main className="page-container content-page"><p className="eyebrow">SHOP SMART</p><h1>Shopping list</h1><div className="list-actions"><button className="primary-button" type="button" onClick={generateList}>Generate from meal plan</button><span className="muted">{items.filter((item) => !item.checked).length} items left</span></div>{error && <p className="form-error">{error}</p>}{loading && <p className="muted">Loading shopping list...</p>}{!loading && items.length === 0 && <p className="muted">Your shopping list is empty. Generate it from your meal plan.</p>}<div className="shopping-list">{items.map((item) => <article className={`shopping-item ${item.checked ? 'is-checked' : ''}`} key={item._id}><label><input type="checkbox" checked={item.checked} onChange={() => toggleItem(item)} /><span>{item.name}</span></label><strong>{item.quantity}</strong><button className="text-button" type="button" onClick={() => removeItem(item._id)}>Remove</button></article>)}</div></main>;
+  return <main className="page-container content-page"><p className="eyebrow">SHOP SMART</p><h1>Shopping list</h1><div className="list-actions"><button className="primary-button" type="button" onClick={generateList}>Add meal-plan ingredients</button><span className="muted">{items.filter((item) => !item.checked).length} items left</span></div><p className="muted">Generated ingredients are added to your list. Existing items and checked status are kept; matching names are not duplicated.</p>{error && <p className="form-error">{error}</p>}{loading && <p className="muted">Loading shopping list...</p>}{!loading && items.length === 0 && <p className="muted">Your shopping list is empty. Add ingredients from a meal plan.</p>}<div className="shopping-list">{items.map((item) => <article className={`shopping-item ${item.checked ? 'is-checked' : ''}`} key={item._id}><label><input type="checkbox" checked={item.checked} onChange={() => toggleItem(item)} /><span>{item.name}</span></label><strong>{item.quantity}</strong><button className="text-button" type="button" onClick={() => removeItem(item._id)}>Remove</button></article>)}</div></main>;
 }
 
 function RecipeManagementPage() {

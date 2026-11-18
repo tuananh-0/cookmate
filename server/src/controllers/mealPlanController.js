@@ -10,9 +10,12 @@ export async function listMealPlans(req, res) {
     if (req.query.dateTo) filter.date.$lte = req.query.dateTo;
   }
 
-  const mealPlans = await MealPlan.find(filter).populate({ path: 'recipe', match: publicRecipeFilter }).sort({ date: 1, mealType: 1 });
-  const publicMealPlans = mealPlans.filter((mealPlan) => mealPlan.recipe);
-  return res.json({ count: publicMealPlans.length, mealPlans: publicMealPlans });
+  const mealPlans = await MealPlan.find(filter)
+    .populate({ path: 'recipe', match: publicRecipeFilter })
+    .sort({ date: 1, mealType: 1 });
+  // Keep the user's slot visible when its recipe is pending or deleted. The
+  // populate match keeps unpublished recipe data private while allowing removal.
+  return res.json({ count: mealPlans.length, mealPlans });
 }
 
 export async function createMealPlan(req, res) {

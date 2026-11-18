@@ -231,7 +231,7 @@
  * @apiSuccess (201) {Number} count Number of generated items.
  * @apiSuccess (201) {Object[]} items Ingredients collected from the user's meal plans and combined by ingredient name.
  * @apiError (401) Unauthorized Token is missing or invalid.
- * @apiDescription Replaces the user's shopping list with ingredients from current meal plans.
+ * @apiDescription Adds meal-plan ingredients not already on the user's list. Existing items and checked state are preserved; repeated calls do not duplicate matching names.
  */
 
 /**
@@ -240,13 +240,12 @@
  * @apiGroup ShoppingList
  * @apiHeader {String} Authorization `Bearer <token>`.
  * @apiParam {String} id Shopping item MongoDB ID.
- * @apiBody {Boolean} [checked] Whether the item has been purchased.
- * @apiBody {String} [name] Ingredient name.
- * @apiBody {String} [quantity] Ingredient quantity.
+ * @apiBody {Boolean} checked Whether the item has been purchased.
  * @apiSuccess {Object} item Updated shopping item.
  * @apiError (401) Unauthorized Token is missing or invalid.
+ * @apiError (400) BadRequest The checked field is required.
  * @apiError (404) NotFound Item does not exist for this user.
- * @apiDescription Updates an item owned by the authenticated user.
+ * @apiDescription Updates the checked state of an item owned by the authenticated user. This legacy apidoc source covers the V1 API; Swagger is the current V2 reference.
  */
 
 /**

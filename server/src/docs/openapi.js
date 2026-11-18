@@ -6,7 +6,7 @@ const options = {
     info: {
       title: 'CookMate API',
       version: '1.0.0',
-      description: 'API for recipe discovery, favorites, meal planning, and shopping lists.',
+      description: 'CookMate API for recipe discovery, ingredient matching, user-submitted recipes with admin moderation, 1–5 star ratings, favorites, meal planning, and shopping lists. Public recipe endpoints expose published recipes. Protected endpoints use a JWT bearer token.',
     },
     servers: [
       { url: 'https://cookmate-j4o2.onrender.com', description: 'Production' },
@@ -21,6 +21,22 @@ const options = {
           type: 'object', required: ['name', 'quantity'],
           properties: { name: { type: 'string', example: 'Rice noodles' }, quantity: { type: 'string', example: '200g' } },
         },
+        RecipeInput: {
+          type: 'object',
+          required: ['title', 'description', 'ingredients', 'instructions', 'category'],
+          properties: {
+            title: { type: 'string', maxLength: 120, example: 'Pho bo' },
+            description: { type: 'string', maxLength: 500 },
+            ingredients: { type: 'array', minItems: 1, items: { $ref: '#/components/schemas/Ingredient' } },
+            instructions: { type: 'array', minItems: 1, items: { type: 'string' } },
+            category: { type: 'string' },
+            imageUrl: { type: 'string' },
+            prepTime: { type: 'number', minimum: 0 },
+            cookTime: { type: 'number', minimum: 0 },
+            servings: { type: 'number', minimum: 1 },
+          },
+          additionalProperties: false,
+        },
         Recipe: {
           type: 'object', required: ['title', 'description', 'ingredients', 'instructions', 'category'],
           properties: {
@@ -31,7 +47,26 @@ const options = {
             cookTime: { type: 'number', example: 30 }, servings: { type: 'number', example: 2 },
             status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
             reviewNote: { type: 'string', maxLength: 500 },
+            ratingAverage: { type: 'number', minimum: 0, maximum: 5 },
+            ratingCount: { type: 'integer', minimum: 0 },
           },
+        },
+        RecipeUpdate: {
+          type: 'object',
+          minProperties: 1,
+          description: 'Send only fields to change. Editing a published recipe returns it to pending review.',
+          properties: {
+            title: { type: 'string', maxLength: 120 },
+            description: { type: 'string', maxLength: 500 },
+            ingredients: { type: 'array', items: { $ref: '#/components/schemas/Ingredient' } },
+            instructions: { type: 'array', items: { type: 'string' } },
+            category: { type: 'string' },
+            imageUrl: { type: 'string' },
+            prepTime: { type: 'number', minimum: 0 },
+            cookTime: { type: 'number', minimum: 0 },
+            servings: { type: 'number', minimum: 1 },
+          },
+          additionalProperties: false,
         },
         RecipeRating: {
           type: 'object', required: ['rating'],
@@ -52,13 +87,13 @@ export default swaggerJsdoc(options);
  * @openapi
  * /api/v1/recipes/ingredients:
  *   get:
- *     summary: List ingredient names used by recipes
+ *     summary: List ingredient names available for recipe matching
  *     tags: [Recipes]
  *     responses:
  *       200: { description: Ingredient names available for matching. }
  * /api/v1/recipes/match:
  *   post:
- *     summary: Find recipes using available ingredients
+ *     summary: Find published recipes using available ingredients
  *     tags: [Recipes]
  *     requestBody:
  *       required: true
@@ -75,7 +110,7 @@ export default swaggerJsdoc(options);
  *                 items: { type: string }
  *     responses:
  *       200:
- *         description: Recipes ranked by ingredient match, with matched and missing ingredients.
+ *         description: Recipes are ranked by matched-ingredient ratio (matched ingredients divided by total recipe ingredients), then by matched count, then by title. Names are compared exactly after case, whitespace, and Unicode normalization; similar or substitute names are not inferred. Each result includes matched and missing ingredients.
  *         content:
  *           application/json:
  *             schema:
@@ -195,7 +230,7 @@ export default swaggerJsdoc(options);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/Recipe' }
+ *           schema: { $ref: '#/components/schemas/RecipeInput' }
  *     responses:
  *       201: { description: Recipe created. }
  *       401: { description: Authentication required. }
@@ -225,7 +260,7 @@ export default swaggerJsdoc(options);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/Recipe' }
+ *           schema: { $ref: '#/components/schemas/RecipeUpdate' }
  *     responses:
  *       200: { description: Updated recipe, now pending admin review. }
  *       403: { description: Admin role required. }
@@ -277,7 +312,7 @@ export default swaggerJsdoc(options);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/Recipe' }
+ *           schema: { $ref: '#/components/schemas/RecipeInput' }
  *     responses:
  *       201: { description: Recipe submitted with pending status. }
  *       401: { description: Authentication required. }
@@ -478,7 +513,8 @@ export default swaggerJsdoc(options);
  *     tags: [Shopping List]
  *     security: [{ bearerAuth: [] }]
  *     responses:
- *       201: { description: Replaces list with ingredients from meal plans, combining duplicate names. }
+ *       201:
+ *         description: Adds meal-plan ingredients not already on the list, combines duplicate names from the plans, preserves existing items and checked state, and avoids duplicates on repeated calls.
  * /api/v1/shopping-list/{id}:
  *   patch:
  *     summary: Update shopping item
@@ -492,9 +528,10 @@ export default swaggerJsdoc(options);
  *     requestBody:
  *       content:
  *         application/json:
- *           schema: { type: object, properties: { checked: { type: boolean }, name: { type: string }, quantity: { type: string } } }
+ *           schema: { type: object, required: [checked], properties: { checked: { type: boolean, description: Whether the item has been purchased. } } }
  *     responses:
  *       200: { description: Updated shopping item. }
+ *       400: { description: The checked field is required and must be a boolean. }
  *       404: { description: Item not found. }
  *   delete:
  *     summary: Delete shopping item
