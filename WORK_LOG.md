@@ -512,3 +512,9 @@ File này ghi lại các phiên làm việc, thay đổi đã thực hiện và 
 - Styled the My kitchen, Contribute, and Administration labels with a pale green background, darker green text, a left accent bar, and more spacing so menu groups are easier to scan.
 - A new feature branch could not be created because this workspace denies writes to `.git/refs`; the CSS change remains uncommitted on the current checkout.
 - Client lint and production build passed; `git diff --check` passed.
+### 2026-11-18 — Thêm trang báo lỗi 404 cho frontend
+
+- Thêm route fallback để URL không tồn tại hiển thị trang 404 thay vì vùng nội dung trống, vẫn giữ navbar và footer.
+- Trang lỗi hiển thị đường dẫn người dùng truy cập, giải thích ngắn gọn và có nút về trang chủ/danh sách công thức.
+- Với `/api-docs`, hiển thị thêm liên kết tới Swagger UI trên backend.
+- Chưa chạy lint/build; chờ người dùng kiểm tra giao diện trước khi commit/push.
