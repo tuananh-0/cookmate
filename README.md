@@ -30,19 +30,44 @@ CookMate là ứng dụng web giúp người dùng khám phá công thức, lưu
 - Công thức user gửi bắt đầu ở trạng thái `pending`; chỉ admin mới có thể approve/reject. Chỉ công thức đã publish (`approved`, cùng dữ liệu V1 cũ không có trạng thái) xuất hiện trong khám phá và tìm theo nguyên liệu.
 - Tài khoản cần đăng nhập để gửi công thức, đánh giá, lưu yêu thích, dùng meal planner và shopping list. Tác giả không thể tự đánh giá công thức của mình.
 
-### Các endpoint V2
+### Danh sách API endpoints
 
-| Tính năng | Endpoint | Truy cập |
-| --- | --- | --- |
-| Gợi ý nguyên liệu đang có trong công thức | `GET /api/v1/recipes/ingredients` | Công khai |
-| Tìm món theo nguyên liệu | `POST /api/v1/recipes/match` | Công khai |
-| Gửi công thức chờ duyệt | `POST /api/v1/recipes/submissions` | Đăng nhập |
-| Xem trạng thái các công thức đã gửi | `GET /api/v1/recipes/submissions/mine` | Đăng nhập, chủ tài khoản |
-| Xem hàng đợi duyệt | `GET /api/v1/recipes/review-queue` | Admin |
-| Duyệt/từ chối công thức | `PATCH /api/v1/recipes/{id}/review` | Admin |
-| Xem đánh giá của mình | `GET /api/v1/recipes/{id}/ratings/me` | Đăng nhập |
-| Tạo/cập nhật đánh giá 1–5 sao | `PUT /api/v1/recipes/{id}/ratings` | Đăng nhập |
-| Xóa đánh giá của mình | `DELETE /api/v1/recipes/{id}/ratings` | Đăng nhập |
+Các endpoint dưới đây được ghép với API base URL `https://cookmate-j4o2.onrender.com`. Những endpoint yêu cầu đăng nhập dùng header `Authorization: Bearer <token>`.
+
+| Nhóm | Tính năng | Endpoint | Truy cập |
+| --- | --- | --- | --- |
+| Health | Kiểm tra API | `GET /api/v1/health` | Công khai |
+| Authentication | Đăng ký tài khoản | `POST /api/v1/auth/register` | Công khai |
+| Authentication | Đăng nhập | `POST /api/v1/auth/login` | Công khai |
+| Authentication | Xem tài khoản hiện tại | `GET /api/v1/auth/me` | Đăng nhập |
+| Recipes | Liệt kê, tìm kiếm, lọc và sắp xếp công thức | `GET /api/v1/recipes` | Công khai |
+| Recipes | Gợi ý nguyên liệu có trong công thức | `GET /api/v1/recipes/ingredients` | Công khai |
+| Recipes | Tìm công thức theo nguyên liệu đang có | `POST /api/v1/recipes/match` | Công khai |
+| Recipes | Xem chi tiết công thức | `GET /api/v1/recipes/{id}` | Công khai |
+| Recipes | Tạo công thức đã được duyệt | `POST /api/v1/recipes` | Admin |
+| Recipes | Cập nhật công thức | `PATCH /api/v1/recipes/{id}` | Admin |
+| Recipes | Xóa công thức | `DELETE /api/v1/recipes/{id}` | Admin |
+| Recipe submissions | Gửi công thức để duyệt | `POST /api/v1/recipes/submissions` | Đăng nhập |
+| Recipe submissions | Xem các công thức mình đã gửi và trạng thái | `GET /api/v1/recipes/submissions/mine` | Đăng nhập |
+| Recipe moderation | Xem hàng đợi duyệt | `GET /api/v1/recipes/review-queue` | Admin |
+| Recipe moderation | Duyệt hoặc từ chối công thức | `PATCH /api/v1/recipes/{id}/review` | Admin |
+| Ratings | Xem đánh giá của mình cho công thức | `GET /api/v1/recipes/{id}/ratings/me` | Đăng nhập |
+| Ratings | Tạo hoặc cập nhật đánh giá 1–5 sao | `PUT /api/v1/recipes/{id}/ratings` | Đăng nhập |
+| Ratings | Xóa đánh giá của mình | `DELETE /api/v1/recipes/{id}/ratings` | Đăng nhập |
+| Favorites | Liệt kê công thức yêu thích | `GET /api/v1/favorites` | Đăng nhập |
+| Favorites | Thêm công thức yêu thích | `POST /api/v1/favorites/{recipeId}` | Đăng nhập |
+| Favorites | Xóa công thức yêu thích | `DELETE /api/v1/favorites/{recipeId}` | Đăng nhập |
+| Meal plans | Liệt kê kế hoạch bữa ăn | `GET /api/v1/meal-plans` | Đăng nhập |
+| Meal plans | Tạo kế hoạch bữa ăn | `POST /api/v1/meal-plans` | Đăng nhập |
+| Meal plans | Cập nhật kế hoạch bữa ăn | `PATCH /api/v1/meal-plans/{id}` | Đăng nhập |
+| Meal plans | Xóa kế hoạch bữa ăn | `DELETE /api/v1/meal-plans/{id}` | Đăng nhập |
+| Shopping list | Xem danh sách mua sắm | `GET /api/v1/shopping-list` | Đăng nhập |
+| Shopping list | Thêm mặt hàng vào danh sách | `POST /api/v1/shopping-list` | Đăng nhập |
+| Shopping list | Tạo danh sách từ kế hoạch bữa ăn | `POST /api/v1/shopping-list/generate` | Đăng nhập |
+| Shopping list | Cập nhật mặt hàng hoặc trạng thái đã mua | `PATCH /api/v1/shopping-list/{id}` | Đăng nhập |
+| Shopping list | Xóa mặt hàng | `DELETE /api/v1/shopping-list/{id}` | Đăng nhập |
+
+Swagger UI: [https://cookmate-j4o2.onrender.com/api-docs/](https://cookmate-j4o2.onrender.com/api-docs/). Swagger cung cấp schema request/response và chi tiết xác thực cho từng endpoint.
 
 Swagger UI là tài liệu API chính cho V2, gồm request, response, mã lỗi và các luồng gửi/duyệt công thức, đánh giá, tìm theo nguyên liệu. Endpoint list/detail trả `ratingAverage` và `ratingCount`; dùng `GET /api/v1/recipes?sort=rating` để xếp hạng. Điểm xếp hạng được điều chỉnh theo số lượt đánh giá để một rating đơn lẻ không dễ đẩy món lên đầu.
 
